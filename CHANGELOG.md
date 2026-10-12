@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- `forumkit.logs.view` (forumkit-logs) mapped to `operator.audit.view`.
+
 - Schema extension for `forums`, `threads` and `posts` (four columns, three unique keys) with its migration.
 - Model subclasses `Forum`, `Thread` and `Post`, registered under `forumkit.models`.
 - Bindings: `RoleSuperUserCheck`, `MembershipPaidAccess`, `UserFlagsModerationPolicy`, `UserSignatureResolver`.

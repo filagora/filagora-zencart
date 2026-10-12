@@ -51,6 +51,9 @@ return [
             'forumkit.entitlements.manage' => 'operator.entitlements.manage',
             'forumkit.entitlements.view' => 'operator.entitlements.view',
         ],
+        'forumkit-logs.gates' => [
+            'forumkit.logs.view' => 'operator.audit.view',
+        ],
     ],
 
 ];

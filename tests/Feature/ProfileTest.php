@@ -265,6 +265,10 @@ it('maps the forum and entitlement abilities onto operator keys', function () {
     ]);
 });
 
+it('maps the logs ability onto the audit key, whether or not the logs package is installed', function () {
+    expect(config('forumkit-logs.gates'))->toBe(['forumkit.logs.view' => 'operator.audit.view']);
+});
+
 it('allows an ability to the holder of the operator key, and not of the generic one', function () {
     $moderator = TestUser::make('Mod');
     UserEntitlementGrant::create(['user_id' => $moderator->id, 'entitlement_key' => 'operator.forum.moderate', 'grant_type' => 'manual']);

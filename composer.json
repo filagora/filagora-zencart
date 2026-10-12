@@ -1,0 +1,56 @@
+{
+    "name": "zcwilt/forumkit-zencart",
+    "description": "Zen Cart profile for ForumKit: the extra columns, bindings, key remaps and seeders zen-cart.com needs on top of the generic packages.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "filament",
+        "forum",
+        "forumkit",
+        "zen-cart"
+    ],
+    "require": {
+        "php": "^8.4",
+        "zcwilt/forumkit-core": "^0.1.3",
+        "zcwilt/forumkit-entitlements": "^0.1.1",
+        "zcwilt/forumkit-forums": "^0.1"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.0",
+        "laravel/pint": "^1.0",
+        "orchestra/testbench": "^11.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ForumKit\\ZenCart\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ForumKit\\ZenCart\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "lint": "vendor/bin/pint",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=1G"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ForumKit\\ZenCart\\ZenCartServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

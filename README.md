@@ -30,7 +30,7 @@ worked example of a ForumKit profile package.
 
 - **Maps the staff abilities to `operator.*` entitlement keys** (`forumkit.forums.moderate` to
   `operator.forum.moderate`, `forumkit.entitlements.manage` to `operator.entitlements.manage`,
-  and so on), replacing the packages' `gates` config. The map lives in
+  `forumkit.logs.view` to `operator.audit.view`, and so on), replacing the packages' `gates` config. The map lives in
   `config/forumkit-zencart.php`.
 - **Seeds entitlement definitions** (`OperatorEntitlementSeeder`): the `operator.*` keys with
   their labels, for staging and test setups. It never creates grants, users or content.

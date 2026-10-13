@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ForumKit\ZenCart\Models;
+namespace Filagora\ZenCart\Models;
 
-use ForumKit\Forums\Models\Forum as BaseForum;
+use Filagora\Forums\Models\Forum as BaseForum;
 
 /**
  * @property int|null $legacy_vbulletin_forum_id

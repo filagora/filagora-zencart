@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use ForumKit\Core\Support\Tables;
+use Filagora\Core\Support\Tables;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

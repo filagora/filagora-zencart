@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ForumKit\ZenCart\Support;
+namespace Filagora\ZenCart\Support;
 
-use ForumKit\Forums\Contracts\ContentModerationPolicy;
-use ForumKit\Forums\Enums\ContentModerationStatus;
-use ForumKit\Forums\Support\Models;
+use Filagora\Forums\Contracts\ContentModerationPolicy;
+use Filagora\Forums\Enums\ContentModerationStatus;
+use Filagora\Forums\Support\Models;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
@@ -36,7 +36,7 @@ final class UserFlagsModerationPolicy implements ContentModerationPolicy
 
     private function flag(Authenticatable $user, string $key): bool
     {
-        return (bool) ($user->{(string) config("forumkit-zencart.user_attributes.{$key}")} ?? false);
+        return (bool) ($user->{(string) config("filagora-zencart.user_attributes.{$key}")} ?? false);
     }
 
     /**

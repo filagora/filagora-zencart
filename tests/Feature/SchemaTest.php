@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-use ForumKit\Core\Schema\Adopter;
-use ForumKit\Core\Schema\AdoptionStatus;
-use ForumKit\Core\Schema\SchemaRegistry;
-use ForumKit\Core\Schema\TableShape;
-use ForumKit\Core\Support\Tables;
-use ForumKit\Forums\ForumsServiceProvider;
+use Filagora\Core\Schema\Adopter;
+use Filagora\Core\Schema\AdoptionStatus;
+use Filagora\Core\Schema\SchemaRegistry;
+use Filagora\Core\Schema\TableShape;
+use Filagora\Core\Support\Tables;
+use Filagora\Forums\ForumsServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-const ZC_FORUM_MIGRATION = '2026_10_11_000000_create_forumkit_forum_tables';
+const ZC_FORUM_MIGRATION = '2026_10_11_000000_create_filagora_forum_tables';
 const ZC_MIGRATION = '2026_10_12_000000_add_zencart_columns_to_forum_tables';
 const ZC_TABLES = ['forum_groups', 'forums', 'threads', 'posts', 'post_reports', 'post_moderation_logs', 'thread_moderation_logs'];
 
@@ -32,7 +32,7 @@ function profileMigration(): object
  */
 function siteTables(): void
 {
-    config(['forumkit.table_prefix' => '']);
+    config(['filagora.table_prefix' => '']);
 
     forumsMigration()->down();
     forumsMigration()->up();
@@ -46,7 +46,7 @@ afterEach(function () {
         Schema::dropIfExists($table);
     }
 
-    config(['forumkit.table_prefix' => 'forumkit_']);
+    config(['filagora.table_prefix' => 'filagora_']);
     forumsMigration()->down();
     forumsMigration()->up();
     profileMigration()->up();
@@ -107,7 +107,7 @@ it('adopts the live site\'s tables with zero differences once the profile is ins
 it('records the profile\'s migration as run when it adopts', function () {
     siteTables();
 
-    $this->artisan('forumkit:adopt', ['--package' => 'forums'])->assertExitCode(0);
+    $this->artisan('filagora:adopt', ['--package' => 'forums'])->assertExitCode(0);
 
     expect(DB::table('migrations')->whereIn('migration', [ZC_FORUM_MIGRATION, ZC_MIGRATION])->count())->toBe(2);
 });
@@ -123,7 +123,7 @@ it('refuses a site whose extra column differs from the declared one', function (
 });
 
 it('refuses the generic package tables when the profile\'s extras are missing', function () {
-    config(['forumkit.table_prefix' => '']);
+    config(['filagora.table_prefix' => '']);
     forumsMigration()->down();
     forumsMigration()->up();
 

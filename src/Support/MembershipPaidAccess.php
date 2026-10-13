@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ForumKit\ZenCart\Support;
+namespace Filagora\ZenCart\Support;
 
 use DateTimeInterface;
-use ForumKit\Forums\Contracts\PaidAccessCheck;
+use Filagora\Forums\Contracts\PaidAccessCheck;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
@@ -20,7 +20,7 @@ final class MembershipPaidAccess implements PaidAccessCheck
             return (bool) $user->hasActiveMembership();
         }
 
-        $expires = $user->{(string) config('forumkit-zencart.user_attributes.membership_expires_at')} ?? null;
+        $expires = $user->{(string) config('filagora-zencart.user_attributes.membership_expires_at')} ?? null;
 
         return $expires instanceof DateTimeInterface && $expires->getTimestamp() > time();
     }

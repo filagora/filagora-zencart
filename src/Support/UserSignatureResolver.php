@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ForumKit\ZenCart\Support;
+namespace Filagora\ZenCart\Support;
 
-use ForumKit\Forums\Contracts\PostSignatureResolver;
+use Filagora\Forums\Contracts\PostSignatureResolver;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
@@ -14,7 +14,7 @@ final class UserSignatureResolver implements PostSignatureResolver
 {
     public function signatureFor(Authenticatable $user): ?string
     {
-        $signature = (string) ($user->{(string) config('forumkit-zencart.user_attributes.signature')} ?? '');
+        $signature = (string) ($user->{(string) config('filagora-zencart.user_attributes.signature')} ?? '');
 
         return trim($signature) !== '' ? $signature : null;
     }

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ForumKit\ZenCart\Seeders;
+namespace Filagora\ZenCart\Seeders;
 
-use ForumKit\Entitlements\Models\EntitlementDefinition;
+use Filagora\Entitlements\Models\EntitlementDefinition;
 use Illuminate\Database\Seeder;
 
 /**

@@ -1,20 +1,20 @@
 {
-    "name": "zcwilt/forumkit-zencart",
-    "description": "Zen Cart profile for ForumKit: the extra columns, bindings, key remaps and seeders zen-cart.com needs on top of the generic packages.",
+    "name": "filagora/filagora-zencart",
+    "description": "Zen Cart profile for Filagora: the extra columns, bindings, key remaps and seeders zen-cart.com needs on top of the generic packages.",
     "type": "library",
     "license": "MIT",
     "keywords": [
         "laravel",
         "filament",
         "forum",
-        "forumkit",
+        "filagora",
         "zen-cart"
     ],
     "require": {
         "php": "^8.4",
-        "zcwilt/forumkit-core": "^0.1.3",
-        "zcwilt/forumkit-entitlements": "^0.1.1",
-        "zcwilt/forumkit-forums": "^0.1"
+        "filagora/filagora-core": "^0.2",
+        "filagora/filagora-entitlements": "^0.2",
+        "filagora/filagora-forums": "^0.2"
     },
     "require-dev": {
         "larastan/larastan": "^3.0",
@@ -25,12 +25,12 @@
     },
     "autoload": {
         "psr-4": {
-            "ForumKit\\ZenCart\\": "src/"
+            "Filagora\\ZenCart\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "ForumKit\\ZenCart\\Tests\\": "tests/"
+            "Filagora\\ZenCart\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -41,7 +41,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "ForumKit\\ZenCart\\ZenCartServiceProvider"
+                "Filagora\\ZenCart\\ZenCartServiceProvider"
             ]
         }
     },

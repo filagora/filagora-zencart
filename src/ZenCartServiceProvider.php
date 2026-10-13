@@ -2,30 +2,30 @@
 
 declare(strict_types=1);
 
-namespace ForumKit\ZenCart;
+namespace Filagora\ZenCart;
 
-use ForumKit\Core\Modules\Module;
-use ForumKit\Core\Modules\ModuleRegistry;
-use ForumKit\Core\Schema\SchemaExtension;
-use ForumKit\Core\Schema\SchemaRegistry;
-use ForumKit\Entitlements\Contracts\SuperUserCheck;
-use ForumKit\Forums\Contracts\ContentModerationPolicy;
-use ForumKit\Forums\Contracts\PaidAccessCheck;
-use ForumKit\Forums\Contracts\PostSignatureResolver;
-use ForumKit\ZenCart\Models\Forum;
-use ForumKit\ZenCart\Models\Post;
-use ForumKit\ZenCart\Models\Thread;
-use ForumKit\ZenCart\Support\MembershipPaidAccess;
-use ForumKit\ZenCart\Support\RoleSuperUserCheck;
-use ForumKit\ZenCart\Support\UserFlagsModerationPolicy;
-use ForumKit\ZenCart\Support\UserSignatureResolver;
+use Filagora\Core\Modules\Module;
+use Filagora\Core\Modules\ModuleRegistry;
+use Filagora\Core\Schema\SchemaExtension;
+use Filagora\Core\Schema\SchemaRegistry;
+use Filagora\Entitlements\Contracts\SuperUserCheck;
+use Filagora\Forums\Contracts\ContentModerationPolicy;
+use Filagora\Forums\Contracts\PaidAccessCheck;
+use Filagora\Forums\Contracts\PostSignatureResolver;
+use Filagora\ZenCart\Models\Forum;
+use Filagora\ZenCart\Models\Post;
+use Filagora\ZenCart\Models\Thread;
+use Filagora\ZenCart\Support\MembershipPaidAccess;
+use Filagora\ZenCart\Support\RoleSuperUserCheck;
+use Filagora\ZenCart\Support\UserFlagsModerationPolicy;
+use Filagora\ZenCart\Support\UserSignatureResolver;
 use Illuminate\Support\ServiceProvider;
 
 class ZenCartServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/forumkit-zencart.php', 'forumkit-zencart');
+        $this->mergeConfigFrom(__DIR__.'/../config/filagora-zencart.php', 'filagora-zencart');
 
         $this->app->bind(SuperUserCheck::class, RoleSuperUserCheck::class);
         $this->app->bind(PaidAccessCheck::class, MembershipPaidAccess::class);
@@ -39,7 +39,7 @@ class ZenCartServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->make(ModuleRegistry::class)->register(
-            new Module('zencart', 'ForumKit Zen Cart profile', 'zcwilt/forumkit-zencart', requires: ['core', 'entitlements', 'forums']),
+            new Module('zencart', 'Filagora Zen Cart profile', 'filagora/filagora-zencart', requires: ['core', 'entitlements', 'forums']),
         );
 
         $this->app->make(SchemaRegistry::class)->extend(SchemaExtension::fromFile(
@@ -53,20 +53,20 @@ class ZenCartServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/forumkit-zencart.php' => config_path('forumkit-zencart.php'),
-            ], 'forumkit-zencart-config');
+                __DIR__.'/../config/filagora-zencart.php' => config_path('filagora-zencart.php'),
+            ], 'filagora-zencart-config');
         }
     }
 
     /**
-     * Point the forum models at the subclasses that know the extra columns. `forumkit.models`
+     * Point the forum models at the subclasses that know the extra columns. `filagora.models`
      * wins over the package's own map, and a host that set its own class is left alone.
      */
     private function useZenCartModels(): void
     {
         foreach (['forum' => Forum::class, 'thread' => Thread::class, 'post' => Post::class] as $key => $class) {
-            if (config("forumkit.models.{$key}") === null) {
-                config(["forumkit.models.{$key}" => $class]);
+            if (config("filagora.models.{$key}") === null) {
+                config(["filagora.models.{$key}" => $class]);
             }
         }
     }
@@ -78,7 +78,7 @@ class ZenCartServiceProvider extends ServiceProvider
      */
     private function remapGates(): void
     {
-        foreach ((array) config('forumkit-zencart.gates') as $key => $map) {
+        foreach ((array) config('filagora-zencart.gates') as $key => $map) {
             config([$key => $map]);
         }
     }

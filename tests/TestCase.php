@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ForumKit\ZenCart\Tests;
+namespace Filagora\ZenCart\Tests;
 
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
@@ -15,12 +15,12 @@ use Filament\Schemas\SchemasServiceProvider;
 use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
-use ForumKit\Core\CoreServiceProvider;
-use ForumKit\Entitlements\EntitlementsServiceProvider;
-use ForumKit\Forums\ForumsServiceProvider;
-use ForumKit\ZenCart\Tests\Support\TestSupportServiceProvider;
-use ForumKit\ZenCart\Tests\Support\TestUser;
-use ForumKit\ZenCart\ZenCartServiceProvider;
+use Filagora\Core\CoreServiceProvider;
+use Filagora\Entitlements\EntitlementsServiceProvider;
+use Filagora\Forums\ForumsServiceProvider;
+use Filagora\ZenCart\Tests\Support\TestSupportServiceProvider;
+use Filagora\ZenCart\Tests\Support\TestUser;
+use Filagora\ZenCart\ZenCartServiceProvider;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -51,7 +51,7 @@ abstract class TestCase extends Orchestra
 
     protected function defineEnvironment($app): void
     {
-        $app['config']->set('forumkit.user_model', TestUser::class);
+        $app['config']->set('filagora.user_model', TestUser::class);
         $app['config']->set('auth.providers.users.model', TestUser::class);
         $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('k', 32)));
     }

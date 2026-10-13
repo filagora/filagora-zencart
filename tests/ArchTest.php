@@ -8,8 +8,8 @@ arch('no debug calls')
 
 arch('env() is only used in config files')
     ->expect('env')
-    ->not->toBeUsedIn('ForumKit\ZenCart');
+    ->not->toBeUsedIn('Filagora\ZenCart');
 
 arch('source files use strict types')
-    ->expect('ForumKit\ZenCart')
+    ->expect('Filagora\ZenCart')
     ->toUseStrictTypes();

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ForumKit\ZenCart\Models;
+namespace Filagora\ZenCart\Models;
 
-use ForumKit\Forums\Models\Post as BasePost;
+use Filagora\Forums\Models\Post as BasePost;
 
 /**
  * @property int|null $legacy_post_id

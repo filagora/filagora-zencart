@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ForumKit\ZenCart\Support;
+namespace Filagora\ZenCart\Support;
 
-use ForumKit\Entitlements\Contracts\SuperUserCheck;
+use Filagora\Entitlements\Contracts\SuperUserCheck;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -15,7 +15,7 @@ final class RoleSuperUserCheck implements SuperUserCheck
 {
     public function bypasses(Model $user): bool
     {
-        $role = (string) config('forumkit-zencart.super_admin_role');
+        $role = (string) config('filagora-zencart.super_admin_role');
 
         return $role !== '' && method_exists($user, 'hasRole') && (bool) $user->hasRole($role);
     }

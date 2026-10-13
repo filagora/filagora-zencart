@@ -36,23 +36,23 @@ return [
     |--------------------------------------------------------------------------
     |
     | The site's staff abilities are `operator.*` entitlements. These maps point the Gate
-    | abilities the ForumKit packages define at those keys. They replace, not merge into,
+    | abilities the Filagora packages define at those keys. They replace, not merge into,
     | the packages' own `gates` config.
     |
     */
     'gates' => [
-        'forumkit-forums.gates' => [
-            'forumkit.forums.moderate' => 'operator.forum.moderate',
-            'forumkit.forums.view_unapproved' => 'operator.forum.view_unapproved',
-            'forumkit.forums.bypass_approval' => 'operator.forum.bypass_approval',
+        'filagora-forums.gates' => [
+            'filagora.forums.moderate' => 'operator.forum.moderate',
+            'filagora.forums.view_unapproved' => 'operator.forum.view_unapproved',
+            'filagora.forums.bypass_approval' => 'operator.forum.bypass_approval',
         ],
-        'forumkit-entitlements.gates' => [
-            'forumkit.settings.manage' => 'operator.system.settings.manage',
-            'forumkit.entitlements.manage' => 'operator.entitlements.manage',
-            'forumkit.entitlements.view' => 'operator.entitlements.view',
+        'filagora-entitlements.gates' => [
+            'filagora.settings.manage' => 'operator.system.settings.manage',
+            'filagora.entitlements.manage' => 'operator.entitlements.manage',
+            'filagora.entitlements.view' => 'operator.entitlements.view',
         ],
-        'forumkit-logs.gates' => [
-            'forumkit.logs.view' => 'operator.audit.view',
+        'filagora-logs.gates' => [
+            'filagora.logs.view' => 'operator.audit.view',
         ],
     ],
 

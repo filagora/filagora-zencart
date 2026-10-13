@@ -2,32 +2,32 @@
 
 declare(strict_types=1);
 
-use ForumKit\Entitlements\Contracts\SuperUserCheck;
-use ForumKit\Entitlements\Models\EntitlementDefinition;
-use ForumKit\Entitlements\Models\UserEntitlementGrant;
-use ForumKit\Forums\Contracts\ContentModerationPolicy;
-use ForumKit\Forums\Contracts\PaidAccessCheck;
-use ForumKit\Forums\Contracts\PostSignatureResolver;
-use ForumKit\Forums\Enums\ContentModerationStatus;
-use ForumKit\Forums\Enums\ForumVisibility;
-use ForumKit\Forums\Exceptions\PostingNotPermitted;
-use ForumKit\Forums\Models\ForumGroup;
-use ForumKit\Forums\Services\ApprovalRules;
-use ForumKit\Forums\Services\ForumAccess;
-use ForumKit\Forums\Services\Posting;
-use ForumKit\Forums\Services\ReplyCreation;
-use ForumKit\Forums\Services\ThreadCreation;
-use ForumKit\Forums\Support\Models;
-use ForumKit\ZenCart\Models\Forum;
-use ForumKit\ZenCart\Models\Post;
-use ForumKit\ZenCart\Models\Thread;
-use ForumKit\ZenCart\Seeders\OperatorEntitlementSeeder;
-use ForumKit\ZenCart\Support\MembershipPaidAccess;
-use ForumKit\ZenCart\Support\RoleSuperUserCheck;
-use ForumKit\ZenCart\Support\UserFlagsModerationPolicy;
-use ForumKit\ZenCart\Support\UserSignatureResolver;
-use ForumKit\ZenCart\Tests\Support\TestUser;
-use ForumKit\ZenCart\ZenCartServiceProvider;
+use Filagora\Entitlements\Contracts\SuperUserCheck;
+use Filagora\Entitlements\Models\EntitlementDefinition;
+use Filagora\Entitlements\Models\UserEntitlementGrant;
+use Filagora\Forums\Contracts\ContentModerationPolicy;
+use Filagora\Forums\Contracts\PaidAccessCheck;
+use Filagora\Forums\Contracts\PostSignatureResolver;
+use Filagora\Forums\Enums\ContentModerationStatus;
+use Filagora\Forums\Enums\ForumVisibility;
+use Filagora\Forums\Exceptions\PostingNotPermitted;
+use Filagora\Forums\Models\ForumGroup;
+use Filagora\Forums\Services\ApprovalRules;
+use Filagora\Forums\Services\ForumAccess;
+use Filagora\Forums\Services\Posting;
+use Filagora\Forums\Services\ReplyCreation;
+use Filagora\Forums\Services\ThreadCreation;
+use Filagora\Forums\Support\Models;
+use Filagora\ZenCart\Models\Forum;
+use Filagora\ZenCart\Models\Post;
+use Filagora\ZenCart\Models\Thread;
+use Filagora\ZenCart\Seeders\OperatorEntitlementSeeder;
+use Filagora\ZenCart\Support\MembershipPaidAccess;
+use Filagora\ZenCart\Support\RoleSuperUserCheck;
+use Filagora\ZenCart\Support\UserFlagsModerationPolicy;
+use Filagora\ZenCart\Support\UserSignatureResolver;
+use Filagora\ZenCart\Tests\Support\TestUser;
+use Filagora\ZenCart\ZenCartServiceProvider;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Gate;
@@ -55,13 +55,13 @@ it('uses the Zen Cart models for forums, threads and posts', function () {
 });
 
 it('keeps a model the host already chose', function () {
-    expect(config('forumkit.models.forum'))->toBe(Forum::class);
+    expect(config('filagora.models.forum'))->toBe(Forum::class);
 
-    $this->app['config']->set('forumkit.models.forum', 'Host\\Forum');
+    $this->app['config']->set('filagora.models.forum', 'Host\\Forum');
     (new ReflectionMethod(ZenCartServiceProvider::class, 'useZenCartModels'))
         ->invoke(new ZenCartServiceProvider($this->app));
 
-    expect(config('forumkit.models.forum'))->toBe('Host\\Forum');
+    expect(config('filagora.models.forum'))->toBe('Host\\Forum');
 });
 
 it('stores and casts the extra columns, and relations return the subclasses', function () {
@@ -112,10 +112,10 @@ it('treats the super_admin role as holding everything', function () {
     expect($check->bypasses($admin))->toBeTrue()
         ->and($check->bypasses($other))->toBeFalse();
 
-    config(['forumkit-zencart.super_admin_role' => 'root']);
+    config(['filagora-zencart.super_admin_role' => 'root']);
     expect($check->bypasses($admin))->toBeFalse();
 
-    config(['forumkit-zencart.super_admin_role' => '']);
+    config(['filagora-zencart.super_admin_role' => '']);
     expect($check->bypasses($admin))->toBeFalse();
 });
 
@@ -129,8 +129,8 @@ it('lets a super admin through the entitlement gates with no grants at all', fun
     $admin = TestUser::make('Admin');
     $admin->roles = ['super_admin'];
 
-    expect(Gate::forUser($admin)->allows('forumkit.forums.moderate'))->toBeTrue()
-        ->and(Gate::forUser(TestUser::make('Nobody'))->allows('forumkit.forums.moderate'))->toBeFalse();
+    expect(Gate::forUser($admin)->allows('filagora.forums.moderate'))->toBeTrue()
+        ->and(Gate::forUser(TestUser::make('Nobody'))->allows('filagora.forums.moderate'))->toBeFalse();
 });
 
 it('counts an active membership as paid, by the user model\'s own rule or the expiry column', function () {
@@ -254,30 +254,30 @@ it('copies the user\'s signature onto new posts, and nothing when blank', functi
 // ------------------------------------------------------------------ operator keys
 
 it('maps the forum and entitlement abilities onto operator keys', function () {
-    expect(config('forumkit-forums.gates'))->toBe([
-        'forumkit.forums.moderate' => 'operator.forum.moderate',
-        'forumkit.forums.view_unapproved' => 'operator.forum.view_unapproved',
-        'forumkit.forums.bypass_approval' => 'operator.forum.bypass_approval',
-    ])->and(config('forumkit-entitlements.gates'))->toBe([
-        'forumkit.settings.manage' => 'operator.system.settings.manage',
-        'forumkit.entitlements.manage' => 'operator.entitlements.manage',
-        'forumkit.entitlements.view' => 'operator.entitlements.view',
+    expect(config('filagora-forums.gates'))->toBe([
+        'filagora.forums.moderate' => 'operator.forum.moderate',
+        'filagora.forums.view_unapproved' => 'operator.forum.view_unapproved',
+        'filagora.forums.bypass_approval' => 'operator.forum.bypass_approval',
+    ])->and(config('filagora-entitlements.gates'))->toBe([
+        'filagora.settings.manage' => 'operator.system.settings.manage',
+        'filagora.entitlements.manage' => 'operator.entitlements.manage',
+        'filagora.entitlements.view' => 'operator.entitlements.view',
     ]);
 });
 
 it('maps the logs ability onto the audit key, whether or not the logs package is installed', function () {
-    expect(config('forumkit-logs.gates'))->toBe(['forumkit.logs.view' => 'operator.audit.view']);
+    expect(config('filagora-logs.gates'))->toBe(['filagora.logs.view' => 'operator.audit.view']);
 });
 
 it('allows an ability to the holder of the operator key, and not of the generic one', function () {
     $moderator = TestUser::make('Mod');
     UserEntitlementGrant::create(['user_id' => $moderator->id, 'entitlement_key' => 'operator.forum.moderate', 'grant_type' => 'manual']);
     $generic = TestUser::make('Generic');
-    UserEntitlementGrant::create(['user_id' => $generic->id, 'entitlement_key' => 'forumkit.forums.moderate', 'grant_type' => 'manual']);
+    UserEntitlementGrant::create(['user_id' => $generic->id, 'entitlement_key' => 'filagora.forums.moderate', 'grant_type' => 'manual']);
 
-    expect(Gate::forUser($moderator)->allows('forumkit.forums.moderate'))->toBeTrue()
-        ->and(Gate::forUser($moderator)->allows('forumkit.entitlements.manage'))->toBeFalse()
-        ->and(Gate::forUser($generic)->allows('forumkit.forums.moderate'))->toBeFalse();
+    expect(Gate::forUser($moderator)->allows('filagora.forums.moderate'))->toBeTrue()
+        ->and(Gate::forUser($moderator)->allows('filagora.entitlements.manage'))->toBeFalse()
+        ->and(Gate::forUser($generic)->allows('filagora.forums.moderate'))->toBeFalse();
 
     freshServices();
     expect(app(ForumAccess::class)->canModerate($moderator))->toBeTrue()
@@ -285,7 +285,7 @@ it('allows an ability to the holder of the operator key, and not of the generic 
 });
 
 it('declares the operator keys as entitlement definitions when synced', function () {
-    $this->artisan('forumkit:entitlements:sync')->assertExitCode(0);
+    $this->artisan('filagora:entitlements:sync')->assertExitCode(0);
 
     expect(EntitlementDefinition::where('key', 'operator.forum.moderate')->exists())->toBeTrue()
         ->and(EntitlementDefinition::where('key', 'operator.entitlements.manage')->exists())->toBeTrue();

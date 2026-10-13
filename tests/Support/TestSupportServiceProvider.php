@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ForumKit\ZenCart\Tests\Support;
+namespace Filagora\ZenCart\Tests\Support;
 
 use Illuminate\Support\ServiceProvider;
 

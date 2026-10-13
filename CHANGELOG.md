@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- **Renamed to Filagora.** The Composer package is `filagora/filagora-zencart` and the namespace `Filagora\ZenCart\`; the config file is `config/filagora-zencart.php`. It requires the `^0.2` Filagora packages.
+
 - `forumkit.logs.view` (forumkit-logs) mapped to `operator.audit.view`.
 
 - Schema extension for `forums`, `threads` and `posts` (four columns, three unique keys) with its migration.

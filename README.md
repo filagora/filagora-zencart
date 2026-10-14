@@ -32,6 +32,14 @@ worked example of a Filagora profile package.
   `operator.forum.moderate`, `filagora.entitlements.manage` to `operator.entitlements.manage`,
   `filagora.logs.view` to `operator.audit.view`, and so on), replacing the packages' `gates` config. The map lives in
   `config/filagora-zencart.php`.
+- **Extends the cms package**: declares `cms_pages.legacy_vbulletin_content_id` (unique) the same
+  way; registers the site's twelve block types (`promo_hero`, `donation_hero`, `donation_method`,
+  `services_hero`, `provider_grid`, `about_hero` and the `home_*` blocks) with their forms, and
+  the old `download_*` names as aliases (`download_hero` is `promo_hero`, and so on); registers
+  the menu link kinds `legal_page` (the page the `privacy_page` / `cookie_policy_page` settings
+  name), `app_page` and `action` (logout), whose allowed references and route names are in
+  `config/filagora-zencart.php` under `cms`; and maps `filagora.cms.manage` / `.preview` to
+  `operator.cms.manage` / `.preview`.
 - **Seeds entitlement definitions** (`OperatorEntitlementSeeder`): the `operator.*` keys with
   their labels, for staging and test setups. It never creates grants, users or content.
 

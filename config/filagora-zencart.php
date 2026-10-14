@@ -53,6 +53,14 @@ return [
             'filagora.entitlements.manage' => 'operator.entitlements.manage',
             'filagora.entitlements.view' => 'operator.entitlements.view',
         ],
+        'filagora-compliance.gates' => [
+            'filagora.compliance.privacy_requests.view' => 'operator.privacy.requests.view',
+            'filagora.compliance.privacy_requests' => 'operator.privacy.requests.update',
+            'filagora.compliance.erase' => 'operator.privacy.requests.delete',
+            'filagora.compliance.cookie_policies' => 'operator.cookie_policies.manage',
+            'filagora.compliance.privacy_policies' => 'operator.privacy_policies.manage',
+            'filagora.compliance.audit' => 'operator.audit.view',
+        ],
         'filagora-logs.gates' => [
             'filagora.logs.view' => 'operator.audit.view',
         ],
@@ -89,6 +97,37 @@ return [
         ],
         'actions' => [
             'logout' => ['label' => 'Log out'],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Erasure
+    |--------------------------------------------------------------------------
+    |
+    | What the site's user row becomes when a person is erased (`{id}` is the user's id; columns
+    | the table does not have are skipped). The password and remember token are always replaced.
+    |
+    */
+    'anonymize' => [
+        'attributes' => [
+            'name' => 'Deleted User {id}',
+            'username' => 'deleted_user_{id}',
+            'email' => 'deleted-user-{id}@anonymized.invalid',
+            'email_verified_at' => null,
+            'avatar_path' => null,
+            'signature' => null,
+            'membership_expires_at' => null,
+            'is_banned' => false,
+            'ban_reason' => null,
+            'banned_at' => null,
+            'banned_until' => null,
+            'thread_subscription_email_frequency' => 'instant',
+            'allow_private_messages' => false,
+            'legacy_password_hash' => null,
+            'legacy_password_salt' => null,
+            'legacy_password_algo' => null,
+            'legacy_password_imported_at' => null,
         ],
     ],
 

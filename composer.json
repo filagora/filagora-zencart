@@ -13,6 +13,7 @@
     "require": {
         "php": "^8.4",
         "filagora/filagora-cms": "^0.2.1",
+        "filagora/filagora-compliance": "^0.1",
         "filagora/filagora-core": "^0.2",
         "filagora/filagora-entitlements": "^0.2",
         "filagora/filagora-forums": "^0.3"

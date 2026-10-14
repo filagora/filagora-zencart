@@ -43,6 +43,14 @@ worked example of a Filagora profile package.
 - **Adds to the forums package's site announcements**: the targeting rules `membership` and
   `not_visited_days` (needs a `last_seen_at` column on your user model, configurable), and maps
   the announcements ability to `operator.site_notifications.manage`.
+- **Extends the compliance package**: maps its six abilities to `operator.privacy.requests.view`,
+  `.update` and `.delete`, `operator.cookie_policies.manage`, `operator.privacy_policies.manage`
+  and `operator.audit.view`; and binds `ZenCartUserAnonymizer`, which replaces the site's identity
+  columns on erasure (list in `anonymize.attributes`), makes the password unusable, clears roles,
+  permissions and two-factor, and removes the avatar file, sessions and password reset tokens.
+  What your application keeps in its own tables (subscriptions, messages, contacts,
+  notifications, newsletter subscriber rows) is erased by a `PrivacyContributor` you register
+  with core for each, not by this package.
 - **Seeds entitlement definitions** (`OperatorEntitlementSeeder`): the `operator.*` keys with
   their labels, for staging and test setups. It never creates grants, users or content.
 

@@ -40,6 +40,9 @@ worked example of a Filagora profile package.
   name), `app_page` and `action` (logout), whose allowed references and route names are in
   `config/filagora-zencart.php` under `cms`; and maps `filagora.cms.manage` / `.preview` to
   `operator.cms.manage` / `.preview`.
+- **Adds to the forums package's site announcements**: the targeting rules `membership` and
+  `not_visited_days` (needs a `last_seen_at` column on your user model, configurable), and maps
+  the announcements ability to `operator.site_notifications.manage`.
 - **Seeds entitlement definitions** (`OperatorEntitlementSeeder`): the `operator.*` keys with
   their labels, for staging and test setups. It never creates grants, users or content.
 

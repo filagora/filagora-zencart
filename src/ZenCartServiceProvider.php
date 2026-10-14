@@ -14,6 +14,9 @@ use Filagora\Entitlements\Contracts\SuperUserCheck;
 use Filagora\Forums\Contracts\ContentModerationPolicy;
 use Filagora\Forums\Contracts\PaidAccessCheck;
 use Filagora\Forums\Contracts\PostSignatureResolver;
+use Filagora\Forums\Targeting\TargetingRules;
+use Filagora\ZenCart\Cms\MembershipRule;
+use Filagora\ZenCart\Cms\NotVisitedDaysRule;
 use Filagora\ZenCart\Cms\SiteBlockTypes;
 use Filagora\ZenCart\Cms\SiteLinkTypes;
 use Filagora\ZenCart\Models\Forum;
@@ -71,8 +74,8 @@ class ZenCartServiceProvider extends ServiceProvider
     }
 
     /**
-     * The site's own block types and their old names, and its menu link kinds, added to the
-     * cms package when it first builds its registries.
+     * The site's own block types and their old names, its menu link kinds and its announcement
+     * targeting rules, added to the packages' registries when they are first built.
      */
     private function extendCms(): void
     {
@@ -87,6 +90,11 @@ class ZenCartServiceProvider extends ServiceProvider
         });
 
         $this->callAfterResolving(NavigationLinkTypes::class, SiteLinkTypes::register(...));
+
+        $this->callAfterResolving(TargetingRules::class, function (TargetingRules $rules): void {
+            $rules->register($this->app->make(MembershipRule::class));
+            $rules->register($this->app->make(NotVisitedDaysRule::class));
+        });
     }
 
     /**

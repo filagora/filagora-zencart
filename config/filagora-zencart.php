@@ -28,6 +28,7 @@ return [
         'moderate_first_post' => 'moderate_first_forum_post',
         'signature' => 'signature',
         'membership_expires_at' => 'membership_expires_at',
+        'last_seen_at' => 'last_seen_at',
     ],
 
     /*
@@ -45,6 +46,7 @@ return [
             'filagora.forums.moderate' => 'operator.forum.moderate',
             'filagora.forums.view_unapproved' => 'operator.forum.view_unapproved',
             'filagora.forums.bypass_approval' => 'operator.forum.bypass_approval',
+            'filagora.forums.announcements' => 'operator.site_notifications.manage',
         ],
         'filagora-entitlements.gates' => [
             'filagora.settings.manage' => 'operator.system.settings.manage',

@@ -12,14 +12,37 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 const ZC_FORUM_MIGRATION = '2026_10_11_000000_create_filagora_forum_tables';
+const ZC_ANNOUNCEMENT_MIGRATION = '2026_10_14_000000_create_filagora_announcement_tables';
 const ZC_MIGRATION = '2026_10_12_000000_add_zencart_columns_to_forum_tables';
-const ZC_TABLES = ['forum_groups', 'forums', 'threads', 'posts', 'post_reports', 'post_moderation_logs', 'thread_moderation_logs'];
+const ZC_TABLES = ['forum_groups', 'forums', 'threads', 'posts', 'post_reports', 'post_moderation_logs', 'thread_moderation_logs', 'site_notifications', 'user_site_notification_dismissals'];
 
 function forumsMigration(): object
 {
     $dir = dirname((new ReflectionClass(ForumsServiceProvider::class))->getFileName(), 2);
 
     return require $dir.'/database/migrations/'.ZC_FORUM_MIGRATION.'.php';
+}
+
+function announcementsMigration(): object
+{
+    $dir = dirname((new ReflectionClass(ForumsServiceProvider::class))->getFileName(), 2);
+
+    return require $dir.'/database/migrations/'.ZC_ANNOUNCEMENT_MIGRATION.'.php';
+}
+
+/**
+ * The forums package's own tables with no prefix. The announcement tables' constraint names do
+ * not carry the prefix, so the prefixed set has to go first; afterEach() puts it back.
+ */
+function genericSiteTables(): void
+{
+    announcementsMigration()->down();
+
+    config(['filagora.table_prefix' => '']);
+
+    forumsMigration()->down();
+    forumsMigration()->up();
+    announcementsMigration()->up();
 }
 
 function profileMigration(): object
@@ -32,13 +55,10 @@ function profileMigration(): object
  */
 function siteTables(): void
 {
-    config(['filagora.table_prefix' => '']);
-
-    forumsMigration()->down();
-    forumsMigration()->up();
+    genericSiteTables();
     profileMigration()->up();
 
-    DB::table('migrations')->whereIn('migration', [ZC_FORUM_MIGRATION, ZC_MIGRATION])->delete();
+    DB::table('migrations')->whereIn('migration', [ZC_FORUM_MIGRATION, ZC_ANNOUNCEMENT_MIGRATION, ZC_MIGRATION])->delete();
 }
 
 afterEach(function () {
@@ -47,8 +67,10 @@ afterEach(function () {
     }
 
     config(['filagora.table_prefix' => 'filagora_']);
+    announcementsMigration()->down();
     forumsMigration()->down();
     forumsMigration()->up();
+    announcementsMigration()->up();
     profileMigration()->up();
 });
 
@@ -101,7 +123,7 @@ it('adopts the live site\'s tables with zero differences once the profile is ins
     $plan = app(Adopter::class)->planFor(app(SchemaRegistry::class)->get('forums'));
 
     expect($plan->status)->toBe(AdoptionStatus::Adoptable, implode('; ', $plan->differences))
-        ->and($plan->pendingMigrations)->toEqualCanonicalizing([ZC_FORUM_MIGRATION, ZC_MIGRATION]);
+        ->and($plan->pendingMigrations)->toEqualCanonicalizing([ZC_FORUM_MIGRATION, ZC_ANNOUNCEMENT_MIGRATION, ZC_MIGRATION]);
 });
 
 it('records the profile\'s migration as run when it adopts', function () {
@@ -109,7 +131,7 @@ it('records the profile\'s migration as run when it adopts', function () {
 
     $this->artisan('filagora:adopt', ['--package' => 'forums'])->assertExitCode(0);
 
-    expect(DB::table('migrations')->whereIn('migration', [ZC_FORUM_MIGRATION, ZC_MIGRATION])->count())->toBe(2);
+    expect(DB::table('migrations')->whereIn('migration', [ZC_FORUM_MIGRATION, ZC_ANNOUNCEMENT_MIGRATION, ZC_MIGRATION])->count())->toBe(3);
 });
 
 it('refuses a site whose extra column differs from the declared one', function () {
@@ -123,9 +145,7 @@ it('refuses a site whose extra column differs from the declared one', function (
 });
 
 it('refuses the generic package tables when the profile\'s extras are missing', function () {
-    config(['filagora.table_prefix' => '']);
-    forumsMigration()->down();
-    forumsMigration()->up();
+    genericSiteTables();
 
     $plan = app(Adopter::class)->planFor(app(SchemaRegistry::class)->get('forums'));
 

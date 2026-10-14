@@ -75,6 +75,7 @@ it('makes a user anonymous: identity columns replaced, password unusable, access
     DB::table('sessions')->insert(['id' => 's1', 'user_id' => $user->id, 'payload' => '', 'last_activity' => time()]);
     DB::table('sessions')->insert(['id' => 's2', 'user_id' => TestUser::make('Other')->id, 'payload' => '', 'last_activity' => time()]);
     DB::table('password_reset_tokens')->insert(['email' => $original, 'token' => 'x', 'created_at' => now()]);
+    DB::table('password_reset_tokens')->insert(['email' => 'someone-else@example.test', 'token' => 'y', 'created_at' => now()]);
 
     app(UserAnonymizer::class)->anonymize($user);
 
@@ -84,7 +85,7 @@ it('makes a user anonymous: identity columns replaced, password unusable, access
         ->and($user->email_verified_at)->toBeNull()
         ->and($user->password)->not->toBe($oldPassword)
         ->and(DB::table('sessions')->pluck('id')->all())->toBe(['s2'])
-        ->and(DB::table('password_reset_tokens')->where('email', $original)->count())->toBe(0)
+        ->and(DB::table('password_reset_tokens')->pluck('email')->all())->toBe(['someone-else@example.test'])
         ->and(AnonymizableUser::$calls)->toBe(['roles', 'permissions', 'two_factor']);
 });
 

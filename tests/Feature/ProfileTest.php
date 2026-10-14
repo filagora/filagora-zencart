@@ -258,6 +258,7 @@ it('maps the forum and entitlement abilities onto operator keys', function () {
         'filagora.forums.moderate' => 'operator.forum.moderate',
         'filagora.forums.view_unapproved' => 'operator.forum.view_unapproved',
         'filagora.forums.bypass_approval' => 'operator.forum.bypass_approval',
+        'filagora.forums.announcements' => 'operator.site_notifications.manage',
     ])->and(config('filagora-entitlements.gates'))->toBe([
         'filagora.settings.manage' => 'operator.system.settings.manage',
         'filagora.entitlements.manage' => 'operator.entitlements.manage',

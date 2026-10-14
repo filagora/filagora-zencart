@@ -27,6 +27,7 @@ class OperatorEntitlementSeeder extends Seeder
         'operator.newsletter.manage' => 'Newsletter Management',
         'operator.cms.manage' => 'CMS Management',
         'operator.cms.preview' => 'CMS Draft Preview',
+        'operator.site_notifications.manage' => 'Site Notification Management',
         'operator.users.view' => 'User Directory Access',
         'operator.users.update' => 'User Editing',
         'operator.users.act_as' => 'User Impersonation',

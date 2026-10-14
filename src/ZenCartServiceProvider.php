@@ -6,6 +6,7 @@ namespace Filagora\ZenCart;
 
 use Filagora\Cms\BlockTypes\BlockTypeRegistry;
 use Filagora\Cms\Navigation\NavigationLinkTypes;
+use Filagora\Compliance\Contracts\UserAnonymizer;
 use Filagora\Core\Modules\Module;
 use Filagora\Core\Modules\ModuleRegistry;
 use Filagora\Core\Schema\SchemaExtension;
@@ -26,6 +27,7 @@ use Filagora\ZenCart\Support\MembershipPaidAccess;
 use Filagora\ZenCart\Support\RoleSuperUserCheck;
 use Filagora\ZenCart\Support\UserFlagsModerationPolicy;
 use Filagora\ZenCart\Support\UserSignatureResolver;
+use Filagora\ZenCart\Support\ZenCartUserAnonymizer;
 use Illuminate\Support\ServiceProvider;
 
 class ZenCartServiceProvider extends ServiceProvider
@@ -38,6 +40,7 @@ class ZenCartServiceProvider extends ServiceProvider
         $this->app->bind(PaidAccessCheck::class, MembershipPaidAccess::class);
         $this->app->bind(ContentModerationPolicy::class, UserFlagsModerationPolicy::class);
         $this->app->bind(PostSignatureResolver::class, UserSignatureResolver::class);
+        $this->app->bind(UserAnonymizer::class, ZenCartUserAnonymizer::class);
 
         $this->useZenCartModels();
         $this->remapGates();
@@ -47,7 +50,7 @@ class ZenCartServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->make(ModuleRegistry::class)->register(
-            new Module('zencart', 'Filagora Zen Cart profile', 'filagora/filagora-zencart', requires: ['core', 'entitlements', 'forums', 'cms']),
+            new Module('zencart', 'Filagora Zen Cart profile', 'filagora/filagora-zencart', requires: ['core', 'entitlements', 'forums', 'cms', 'compliance']),
         );
 
         $this->app->make(SchemaRegistry::class)->extend(SchemaExtension::fromFile(

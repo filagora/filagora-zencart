@@ -5,6 +5,10 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- Requires `filagora/filagora-compliance` `^0.1` and the contributor releases of entitlements, forums and logs.
+- The six compliance abilities mapped to `operator.privacy.requests.view` / `.update` / `.delete`, `operator.cookie_policies.manage`, `operator.privacy_policies.manage` and `operator.audit.view` (all defined by the seeder).
+- `ZenCartUserAnonymizer`, bound as compliance's `UserAnonymizer`: replaces the site's identity columns (`anonymize.attributes` in the config: name, username, email, avatar, signature, membership, ban fields, the legacy password columns; columns the table lacks are skipped), makes the password unusable, clears roles and permissions and two-factor when the user model has them, deletes the avatar file, sessions and password reset tokens. Authored content stays under the anonymous name.
+
 - Requires `filagora/filagora-forums` `^0.3` (site announcements).
 - Announcement targeting rules `membership` (any membership, or a plan through the user model's `hasActiveMembershipForPlan()`) and `not_visited_days` (the `last_seen_at` user attribute).
 - `filagora.forums.announcements` mapped to `operator.site_notifications.manage`, which the seeder now defines.

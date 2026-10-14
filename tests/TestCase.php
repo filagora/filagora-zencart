@@ -7,6 +7,7 @@ namespace Filagora\ZenCart\Tests;
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
 use Filagora\Cms\CmsServiceProvider;
+use Filagora\Compliance\ComplianceServiceProvider;
 use Filagora\Core\CoreServiceProvider;
 use Filagora\Entitlements\EntitlementsServiceProvider;
 use Filagora\Forums\ForumsServiceProvider;
@@ -46,6 +47,7 @@ abstract class TestCase extends Orchestra
             EntitlementsServiceProvider::class,
             ForumsServiceProvider::class,
             CmsServiceProvider::class,
+            ComplianceServiceProvider::class,
             ZenCartServiceProvider::class,
             TestSupportServiceProvider::class,
         ];

@@ -5,6 +5,9 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- Requires `filagora/filagora-forums` `^0.4` (polls, reactions, subscriptions and digests).
+- Schema extension for `reactions.legacy_reaction_id` (unique, after `id`) in its own migration, dated after the forums package's reactions migration, and the `Reaction` model subclass behind `filagora.models.reaction`. The thread subscription preference columns the forums package reads by default (`thread_subscription_email_frequency`, `auto_subscribe_on_post`) are the ones this site already has.
+
 - Requires `filagora/filagora-compliance` `^0.1` and the contributor releases of entitlements, forums and logs.
 - The six compliance abilities mapped to `operator.privacy.requests.view` / `.update` / `.delete`, `operator.cookie_policies.manage`, `operator.privacy_policies.manage` and `operator.audit.view` (all defined by the seeder).
 - `ZenCartUserAnonymizer`, bound as compliance's `UserAnonymizer`: replaces the site's identity columns (`anonymize.attributes` in the config: name, username, email, avatar, signature, membership, ban fields, the legacy password columns; columns the table lacks are skipped), makes the password unusable, clears roles and permissions and two-factor when the user model has them, deletes the avatar file, sessions and password reset tokens. Authored content stays under the anonymous name.

@@ -83,5 +83,27 @@ return [
                 ],
             ],
         ],
+        'reactions' => [
+            'columns' => [
+                'legacy_reaction_id' => [
+                    'type' => 'bigint unsigned',
+                    'nullable' => true,
+                    'default' => null,
+                    'collation' => null,
+                    'auto_increment' => false,
+                    'generation' => null,
+                ],
+            ],
+            'indexes' => [
+                'reactions_legacy_reaction_id_unique' => [
+                    'columns' => [
+                        'legacy_reaction_id',
+                    ],
+                    'unique' => true,
+                    'primary' => false,
+                    'type' => 'btree',
+                ],
+            ],
+        ],
     ],
 ];

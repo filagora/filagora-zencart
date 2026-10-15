@@ -20,6 +20,7 @@ use Filagora\Forums\Services\ThreadCreation;
 use Filagora\Forums\Support\Models;
 use Filagora\ZenCart\Models\Forum;
 use Filagora\ZenCart\Models\Post;
+use Filagora\ZenCart\Models\Reaction;
 use Filagora\ZenCart\Models\Thread;
 use Filagora\ZenCart\Seeders\OperatorEntitlementSeeder;
 use Filagora\ZenCart\Support\MembershipPaidAccess;
@@ -77,6 +78,20 @@ it('stores and casts the extra columns, and relations return the subclasses', fu
         ->and($thread->forum)->toBeInstanceOf(Forum::class)
         ->and($post->thread)->toBeInstanceOf(Thread::class)
         ->and($forum->threads->first())->toBeInstanceOf(Thread::class);
+});
+
+it('stores the legacy reaction id, casts it, and keeps it unique, through the reaction model the package asks for', function () {
+    $author = TestUser::make('Author');
+    $forum = makeForum();
+    $thread = Thread::create(['forum_id' => $forum->id, 'author_id' => $author->id, 'title' => 'T', 'slug' => 't-r'])->refresh();
+    $post = Post::create(['thread_id' => $thread->id, 'author_id' => $author->id, 'body' => 'b'])->refresh();
+    $model = Models::class('reaction');
+
+    $reaction = $model::create(['post_id' => $post->id, 'user_id' => $author->id, 'type' => 'like', 'legacy_reaction_id' => '77'])->refresh();
+
+    expect($model)->toBe(Reaction::class)
+        ->and($reaction->legacy_reaction_id)->toBe(77)
+        ->and(fn () => $model::create(['post_id' => $post->id, 'user_id' => TestUser::make('Other')->id, 'type' => 'like', 'legacy_reaction_id' => 77]))->toThrow(QueryException::class);
 });
 
 it('keeps the package\'s own fillable fields and casts', function () {

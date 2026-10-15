@@ -77,7 +77,7 @@ it('equals the cms snapshot plus the declared extension, exactly', function () {
 it('keeps the forums extension to its own migration', function () {
     $extension = app(SchemaRegistry::class)->extensionsFor('forums');
 
-    expect($extension[0]->migrationNames())->toBe(['2026_10_12_000000_add_zencart_columns_to_forum_tables']);
+    expect($extension[0]->migrationNames())->toBe(['2026_10_12_000000_add_zencart_columns_to_forum_tables', '2026_10_15_300000_add_zencart_columns_to_reaction_table']);
 });
 
 it('adopts the live site\'s cms tables with zero differences once the profile is installed', function () {

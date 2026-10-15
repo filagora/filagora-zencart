@@ -15,7 +15,7 @@ worked example of a Filagora profile package.
 - **Declares the site's extra columns**, exactly, so `php artisan filagora:adopt` accepts the
   live tables and still reports anything undeclared: `forums.legacy_vbulletin_forum_id`
   (unique), `forums.is_plugin_support_forum`, `threads.legacy_vbulletin_thread_id` (unique) and
-  `posts.legacy_post_id` (unique). A migration creates them, in the same place the live tables
+  `posts.legacy_post_id` (unique) and `reactions.legacy_reaction_id` (unique). A migration creates them, in the same place the live tables
   have them, for fresh development and test databases; on adoption it is recorded as run.
 - **Swaps in model subclasses** (`Filagora\ZenCart\Models\Forum`, `Thread`, `Post`) that know
   the extra columns, through `filagora.models`. A model you already set there is kept.

@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- Requires `filagora/filagora-messages` `^0.1`. Schema extension for `private_conversations.legacy_root_pmid` and `private_messages.legacy_pmtext_id` (unique, after `id`), in its own migration directory.
+
 - Requires `filagora/filagora-forums` `^0.4` (polls, reactions, subscriptions and digests).
 - Schema extension for `reactions.legacy_reaction_id` (unique, after `id`) in its own migration, dated after the forums package's reactions migration, and the `Reaction` model subclass behind `filagora.models.reaction`. The thread subscription preference columns the forums package reads by default (`thread_subscription_email_frequency`, `auto_subscribe_on_post`) are the ones this site already has.
 

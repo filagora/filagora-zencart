@@ -16,7 +16,8 @@
         "filagora/filagora-compliance": "^0.1",
         "filagora/filagora-core": "^0.2",
         "filagora/filagora-entitlements": "^0.2",
-        "filagora/filagora-forums": "^0.4"
+        "filagora/filagora-forums": "^0.4",
+        "filagora/filagora-messages": "^0.1"
     },
     "require-dev": {
         "larastan/larastan": "^3.0",

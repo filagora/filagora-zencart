@@ -51,7 +51,7 @@ class ZenCartServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->make(ModuleRegistry::class)->register(
-            new Module('zencart', 'Filagora Zen Cart profile', 'filagora/filagora-zencart', requires: ['core', 'entitlements', 'forums', 'cms', 'compliance']),
+            new Module('zencart', 'Filagora Zen Cart profile', 'filagora/filagora-zencart', requires: ['core', 'entitlements', 'forums', 'cms', 'compliance', 'messages']),
         );
 
         $this->app->make(SchemaRegistry::class)->extend(SchemaExtension::fromFile(
@@ -68,7 +68,14 @@ class ZenCartServiceProvider extends ServiceProvider
             __DIR__.'/../database/migrations/cms',
         ));
 
-        $this->loadMigrationsFrom([__DIR__.'/../database/migrations', __DIR__.'/../database/migrations/cms']);
+        $this->app->make(SchemaRegistry::class)->extend(SchemaExtension::fromFile(
+            'zencart',
+            'messages',
+            __DIR__.'/../database/extensions/messages.php',
+            __DIR__.'/../database/migrations/messages',
+        ));
+
+        $this->loadMigrationsFrom([__DIR__.'/../database/migrations', __DIR__.'/../database/migrations/cms', __DIR__.'/../database/migrations/messages']);
 
         if ($this->app->runningInConsole()) {
             $this->publishes([

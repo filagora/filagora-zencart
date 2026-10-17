@@ -5,6 +5,10 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- Requires `filagora/filagora-forums` `^0.6`, `filagora/filagora-messages` `^0.2` and `filagora/filagora-core` `^0.2.2`.
+- Schema extension for `post_attachments`: the importer columns `legacy_attachment_id` (unique), `legacy_filedata_id`, `legacy_post_id`, `legacy_pmtext_id`, `legacy_state`, `legacy_download_count` and `legacy_created_at`, placed where the live table has them, and the lookups by post and by thread with the old attachment id, which replace the plain `post_id` and `thread_id` indexes (declared with core's `drop_indexes`). Its own migration, dated after the forums package's attachments migration and the message links `filagora-messages` adds. The `PostAttachment` model subclass behind `filagora.models.post_attachment`.
+- The read tracking, mentions and message-link tables need no extras: they match the generic packages exactly.
+
 - Requires `filagora/filagora-messages` `^0.1`. Schema extension for `private_conversations.legacy_root_pmid` and `private_messages.legacy_pmtext_id` (unique, after `id`), in its own migration directory.
 
 - Requires `filagora/filagora-forums` `^0.4` (polls, reactions, subscriptions and digests).

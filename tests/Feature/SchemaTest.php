@@ -7,99 +7,12 @@ use Filagora\Core\Schema\AdoptionStatus;
 use Filagora\Core\Schema\SchemaRegistry;
 use Filagora\Core\Schema\TableShape;
 use Filagora\Core\Support\Tables;
-use Filagora\Forums\ForumsServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-const ZC_FORUM_MIGRATION = '2026_10_11_000000_create_filagora_forum_tables';
-const ZC_ANNOUNCEMENT_MIGRATION = '2026_10_14_000000_create_filagora_announcement_tables';
-const ZC_POLL_MIGRATION = '2026_10_15_000000_create_filagora_poll_tables';
-const ZC_REACTION_MIGRATION = '2026_10_15_100000_create_filagora_reaction_tables';
-const ZC_SUBSCRIPTION_MIGRATION = '2026_10_15_200000_create_filagora_subscription_tables';
-const ZC_PACKAGE_MIGRATIONS = [ZC_FORUM_MIGRATION, ZC_ANNOUNCEMENT_MIGRATION, ZC_POLL_MIGRATION, ZC_REACTION_MIGRATION, ZC_SUBSCRIPTION_MIGRATION];
-const ZC_REACTION_PROFILE_MIGRATION = '2026_10_15_300000_add_zencart_columns_to_reaction_table';
-const ZC_MIGRATION = '2026_10_12_000000_add_zencart_columns_to_forum_tables';
-const ZC_TABLES = ['forum_groups', 'forums', 'threads', 'posts', 'post_reports', 'post_moderation_logs', 'thread_moderation_logs', 'site_notifications', 'user_site_notification_dismissals', 'polls', 'poll_questions', 'poll_options', 'poll_votes', 'poll_vote_answers', 'reactions', 'thread_subscriptions', 'thread_subscription_digest_items'];
+afterEach(fn () => restoreStack());
 
-function packageMigration(string $name): object
-{
-    $dir = dirname((new ReflectionClass(ForumsServiceProvider::class))->getFileName(), 2);
-
-    return require $dir.'/database/migrations/'.$name.'.php';
-}
-
-/**
- * Take the forums package's tables down (newest migration first, because later ones point at the
- * forum tables) and bring them up again, with the prefix as it is now.
- */
-function rebuildPackageTables(): void
-{
-    foreach (array_reverse(ZC_PACKAGE_MIGRATIONS) as $name) {
-        packageMigration($name)->down();
-    }
-
-    foreach (ZC_PACKAGE_MIGRATIONS as $name) {
-        packageMigration($name)->up();
-    }
-}
-
-/**
- * The forums package's own tables with no prefix. Some constraint names do not carry the prefix,
- * so the prefixed set has to go first; afterEach() puts it back.
- */
-function genericSiteTables(): void
-{
-    foreach (array_reverse(ZC_PACKAGE_MIGRATIONS) as $name) {
-        packageMigration($name)->down();
-    }
-
-    config(['filagora.table_prefix' => '']);
-
-    rebuildPackageTables();
-}
-
-function profileMigration(): object
-{
-    return new class
-    {
-        public function up(): void
-        {
-            foreach ([ZC_MIGRATION, ZC_REACTION_PROFILE_MIGRATION] as $name) {
-                (require __DIR__.'/../../database/migrations/'.$name.'.php')->up();
-            }
-        }
-
-        public function down(): void
-        {
-            foreach ([ZC_REACTION_PROFILE_MIGRATION, ZC_MIGRATION] as $name) {
-                (require __DIR__.'/../../database/migrations/'.$name.'.php')->down();
-            }
-        }
-    };
-}
-
-/**
- * Tables as zen-cart.com has them: no prefix, migrations not recorded.
- */
-function siteTables(): void
-{
-    genericSiteTables();
-    profileMigration()->up();
-
-    DB::table('migrations')->whereIn('migration', [...ZC_PACKAGE_MIGRATIONS, ZC_MIGRATION, ZC_REACTION_PROFILE_MIGRATION])->delete();
-}
-
-afterEach(function () {
-    foreach (array_reverse(ZC_TABLES) as $table) {
-        Schema::dropIfExists($table);
-    }
-
-    config(['filagora.table_prefix' => 'filagora_']);
-    rebuildPackageTables();
-    profileMigration()->up();
-});
-
-it('adds the five extras to the forum tables, with their unique keys', function () {
+it('adds the extras to the forum tables, with their unique keys', function () {
     foreach (['forums' => ['legacy_vbulletin_forum_id', 'is_plugin_support_forum'], 'threads' => ['legacy_vbulletin_thread_id'], 'posts' => ['legacy_post_id'], 'reactions' => ['legacy_reaction_id']] as $table => $columns) {
         foreach ($columns as $column) {
             expect(Schema::hasColumn(Tables::name($table), $column))->toBeTrue("{$table}.{$column}");
@@ -128,41 +41,58 @@ it('places the extras where the live tables have them', function () {
     expect($columns[array_search('show_when_empty', $columns, true) + 1])->toBe('is_plugin_support_forum');
 });
 
-it('equals the forums snapshot plus the declared extension, exactly', function () {
+it('puts the attachment extras where the live table has them, with its own lookups instead of the plain ones', function () {
+    $attachments = TableShape::inspect('post_attachments');
+    $columns = array_keys($attachments->columns);
+
+    expect(array_slice($columns, 0, 10))->toBe(['id', 'legacy_attachment_id', 'legacy_filedata_id', 'legacy_post_id', 'legacy_pmtext_id', 'post_id', 'thread_id', 'private_message_id', 'private_conversation_id', 'uploader_id'])
+        ->and($columns[array_search('thumbnail_storage_path', $columns, true) + 1])->toBe('legacy_state')
+        ->and($columns[array_search('legacy_state', $columns, true) + 1])->toBe('legacy_download_count')
+        ->and($columns[array_search('download_count', $columns, true) + 1])->toBe('legacy_created_at')
+        ->and($attachments->columns['legacy_download_count'])->toMatchArray(['type' => 'int unsigned', 'nullable' => false, 'default' => '0'])
+        ->and($attachments->columns['legacy_created_at'])->toMatchArray(['type' => 'datetime', 'nullable' => true])
+        ->and($attachments->indexes['post_attachments_legacy_attachment_id_unique']['unique'])->toBeTrue()
+        ->and($attachments->indexes['post_attachments_post_id_legacy_attachment_id_index']['columns'])->toBe(['post_id', 'legacy_attachment_id'])
+        ->and($attachments->indexes['post_attachments_thread_id_legacy_attachment_id_index']['columns'])->toBe(['thread_id', 'legacy_attachment_id'])
+        ->and($attachments->indexes)->not->toHaveKeys(['post_attachments_post_id_foreign', 'post_attachments_thread_id_foreign'])
+        ->and($attachments->foreignKeys)->toHaveKeys(['post_attachments_post_id_foreign', 'post_attachments_thread_id_foreign']);
+});
+
+it('equals the forums snapshot plus the declared extensions, exactly', function () {
     $registry = app(SchemaRegistry::class);
     $snapshot = $registry->get('forums');
-    $extension = $registry->extensionsFor('forums');
+    $extensions = $registry->extensionsFor('forums');
+    $zencart = collect($extensions)->firstWhere('name', 'zencart');
 
-    expect($extension)->toHaveCount(1)
-        ->and($extension[0]->name)->toBe('zencart')
-        ->and($extension[0]->migrationNames())->toBe([ZC_MIGRATION, ZC_REACTION_PROFILE_MIGRATION]);
+    expect($extensions)->toHaveCount(2)
+        ->and($zencart->migrationNames())->toBe([STACK_FORUMS_PROFILE[0], STACK_FORUMS_PROFILE[1], STACK_FORUMS_PROFILE[2]]);
 
-    $extended = $snapshot->extendedBy($extension);
+    $extended = $snapshot->extendedBy($extensions);
 
-    foreach (['forums', 'threads', 'posts', 'reactions'] as $base) {
+    foreach (['forums', 'threads', 'posts', 'reactions', 'post_attachments'] as $base) {
         expect(TableShape::inspect($base)->differencesFrom($extended->tables[$base]))->toBe([], $base);
     }
 });
 
 it('adopts the live site\'s tables with zero differences once the profile is installed', function () {
-    siteTables();
+    liveSiteStack();
 
     $plan = app(Adopter::class)->planFor(app(SchemaRegistry::class)->get('forums'));
 
     expect($plan->status)->toBe(AdoptionStatus::Adoptable, implode('; ', $plan->differences))
-        ->and($plan->pendingMigrations)->toEqualCanonicalizing([...ZC_PACKAGE_MIGRATIONS, ZC_MIGRATION, ZC_REACTION_PROFILE_MIGRATION]);
+        ->and($plan->pendingMigrations)->toEqualCanonicalizing([...STACK_FORUMS_MIGRATIONS, ...STACK_FORUMS_PROFILE, STACK_MESSAGES_LINK_MIGRATION]);
 });
 
-it('records the profile\'s migration as run when it adopts', function () {
-    siteTables();
+it('records the profile\'s migrations as run when it adopts', function () {
+    liveSiteStack();
 
     $this->artisan('filagora:adopt', ['--package' => 'forums'])->assertExitCode(0);
 
-    expect(DB::table('migrations')->whereIn('migration', [...ZC_PACKAGE_MIGRATIONS, ZC_MIGRATION, ZC_REACTION_PROFILE_MIGRATION])->count())->toBe(7);
+    expect(DB::table('migrations')->whereIn('migration', [...STACK_FORUMS_MIGRATIONS, ...STACK_FORUMS_PROFILE, STACK_MESSAGES_LINK_MIGRATION])->count())->toBe(12);
 });
 
 it('refuses a site whose extra column differs from the declared one', function () {
-    siteTables();
+    liveSiteStack();
     Schema::table('posts', fn ($table) => $table->string('legacy_post_id', 20)->nullable()->change());
 
     $plan = app(Adopter::class)->planFor(app(SchemaRegistry::class)->get('forums'));
@@ -171,21 +101,44 @@ it('refuses a site whose extra column differs from the declared one', function (
         ->and($plan->differences)->toContain('posts: column legacy_post_id type is varchar(20), expected bigint unsigned');
 });
 
-it('refuses the generic package tables when the profile\'s extras are missing', function () {
-    genericSiteTables();
+it('refuses a site whose attachment lookups differ from the declared ones', function () {
+    liveSiteStack();
+    Schema::table('post_attachments', fn ($table) => $table->index('post_id', 'post_attachments_post_id_foreign'));
+    Schema::table('post_attachments', fn ($table) => $table->dropIndex('post_attachments_post_id_legacy_attachment_id_index'));
 
     $plan = app(Adopter::class)->planFor(app(SchemaRegistry::class)->get('forums'));
 
     expect($plan->status)->toBe(AdoptionStatus::Mismatch)
-        ->and($plan->differences)->toContain('posts: column legacy_post_id is missing');
+        ->and($plan->differences)->toContain('post_attachments: index post_attachments_post_id_legacy_attachment_id_index is missing')
+        ->and($plan->differences)->toContain('post_attachments: index post_attachments_post_id_foreign is not expected');
 });
 
-it('rolls its migration back cleanly', function () {
-    profileMigration()->down();
+it('refuses the generic package tables when the profile\'s extras are missing', function () {
+    liveSiteStack(withProfile: false);
+
+    $plan = app(Adopter::class)->planFor(app(SchemaRegistry::class)->get('forums'));
+
+    expect($plan->status)->toBe(AdoptionStatus::Mismatch)
+        ->and($plan->differences)->toContain('posts: column legacy_post_id is missing')
+        ->and($plan->differences)->toContain('post_attachments: column legacy_attachment_id is missing')
+        ->and($plan->differences)->toContain('post_attachments: index post_attachments_post_id_foreign is not expected');
+});
+
+it('rolls its migrations back cleanly', function () {
+    foreach (array_reverse(STACK_FORUMS_PROFILE) as $name) {
+        stackProfileMigration($name)->down();
+    }
+
+    $registry = app(SchemaRegistry::class);
+    $base = $registry->get('forums')->extendedBy(array_values(array_filter($registry->extensionsFor('forums'), fn ($extension) => $extension->name === 'messages')));
 
     expect(Schema::hasColumn(Tables::name('posts'), 'legacy_post_id'))->toBeFalse()
         ->and(Schema::hasColumn(Tables::name('forums'), 'is_plugin_support_forum'))->toBeFalse()
-        ->and(TableShape::inspect('forums')->differencesFrom(app(SchemaRegistry::class)->get('forums')->tables['forums']))->toBe([]);
+        ->and(Schema::hasColumn(Tables::name('post_attachments'), 'legacy_attachment_id'))->toBeFalse()
+        ->and(TableShape::inspect('forums')->differencesFrom($base->tables['forums']))->toBe([])
+        ->and(TableShape::inspect('post_attachments')->differencesFrom($base->tables['post_attachments']))->toBe([]);
 
-    profileMigration()->up();
+    foreach (STACK_FORUMS_PROFILE as $name) {
+        stackProfileMigration($name)->up();
+    }
 });

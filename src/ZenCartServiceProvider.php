@@ -22,6 +22,7 @@ use Filagora\ZenCart\Cms\SiteBlockTypes;
 use Filagora\ZenCart\Cms\SiteLinkTypes;
 use Filagora\ZenCart\Models\Forum;
 use Filagora\ZenCart\Models\Post;
+use Filagora\ZenCart\Models\PostAttachment;
 use Filagora\ZenCart\Models\Reaction;
 use Filagora\ZenCart\Models\Thread;
 use Filagora\ZenCart\Support\MembershipPaidAccess;
@@ -114,7 +115,7 @@ class ZenCartServiceProvider extends ServiceProvider
      */
     private function useZenCartModels(): void
     {
-        foreach (['forum' => Forum::class, 'thread' => Thread::class, 'post' => Post::class, 'reaction' => Reaction::class] as $key => $class) {
+        foreach (['forum' => Forum::class, 'thread' => Thread::class, 'post' => Post::class, 'reaction' => Reaction::class, 'post_attachment' => PostAttachment::class] as $key => $class) {
             if (config("filagora.models.{$key}") === null) {
                 config(["filagora.models.{$key}" => $class]);
             }

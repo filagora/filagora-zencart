@@ -20,6 +20,7 @@ use Filagora\Forums\Services\ThreadCreation;
 use Filagora\Forums\Support\Models;
 use Filagora\ZenCart\Models\Forum;
 use Filagora\ZenCart\Models\Post;
+use Filagora\ZenCart\Models\PostAttachment;
 use Filagora\ZenCart\Models\Reaction;
 use Filagora\ZenCart\Models\Thread;
 use Filagora\ZenCart\Seeders\OperatorEntitlementSeeder;
@@ -92,6 +93,22 @@ it('stores the legacy reaction id, casts it, and keeps it unique, through the re
     expect($model)->toBe(Reaction::class)
         ->and($reaction->legacy_reaction_id)->toBe(77)
         ->and(fn () => $model::create(['post_id' => $post->id, 'user_id' => TestUser::make('Other')->id, 'type' => 'like', 'legacy_reaction_id' => 77]))->toThrow(QueryException::class);
+});
+
+it('stores the legacy attachment columns, casts them, and keeps the old attachment id unique, through the attachment model the package asks for', function () {
+    $author = TestUser::make('Author');
+    $thread = Thread::create(['forum_id' => makeForum()->id, 'author_id' => $author->id, 'title' => 'T', 'slug' => 't-a'])->refresh();
+    $model = Models::class('post_attachment');
+    $attributes = ['post_id' => null, 'thread_id' => $thread->id, 'uploader_id' => $author->id, 'original_filename' => 'a.png', 'storage_path' => 'a/a.png'];
+
+    $attachment = $model::create($attributes + ['legacy_attachment_id' => '501', 'legacy_filedata_id' => '9', 'legacy_post_id' => '7', 'legacy_pmtext_id' => '3', 'legacy_state' => 'visible', 'legacy_download_count' => '12', 'legacy_created_at' => '2012-03-04 05:06:07'])->refresh();
+
+    expect($model)->toBe(PostAttachment::class)
+        ->and($attachment->legacy_attachment_id)->toBe(501)->and($attachment->legacy_filedata_id)->toBe(9)->and($attachment->legacy_post_id)->toBe(7)->and($attachment->legacy_pmtext_id)->toBe(3)
+        ->and($attachment->legacy_state)->toBe('visible')->and($attachment->legacy_download_count)->toBe(12)
+        ->and($attachment->legacy_created_at->toDateTimeString())->toBe('2012-03-04 05:06:07')
+        ->and($attachment->download_count)->toBe(0)
+        ->and(fn () => $model::create($attributes + ['legacy_attachment_id' => 501]))->toThrow(QueryException::class);
 });
 
 it('keeps the package\'s own fillable fields and casts', function () {

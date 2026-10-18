@@ -68,6 +68,10 @@ return [
             'filagora.cms.manage' => 'operator.cms.manage',
             'filagora.cms.preview' => 'operator.cms.preview',
         ],
+        'filagora-memberships.gates' => [
+            'filagora.memberships.manage' => 'operator.users.update',
+            'filagora.memberships.view_billing' => 'operator.audit.view',
+        ],
     ],
 
     /*

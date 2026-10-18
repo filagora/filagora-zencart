@@ -6,9 +6,17 @@ use Filagora\Entitlements\Models\UserEntitlementGrant;
 use Filagora\Forums\Support\Abilities;
 use Filagora\Forums\Targeting\TargetingRules;
 use Filagora\Forums\Targeting\Viewer;
+use Filagora\Memberships\Models\MembershipPlan;
+use Filagora\Memberships\Models\UserMembership;
+use Filagora\ZenCart\Cms\MembershipRule;
 use Filagora\ZenCart\Seeders\OperatorEntitlementSeeder;
 use Filagora\ZenCart\Tests\Support\TestUser;
 use Illuminate\Support\Facades\Gate;
+
+function zcPlan(string $code = 'plan'): MembershipPlan
+{
+    return MembershipPlan::create(['code' => $code, 'name' => ucfirst($code), 'is_free' => true, 'is_active' => true]);
+}
 
 function zcRule(array $rule, ?TestUser $user = null): bool
 {
@@ -16,10 +24,14 @@ function zcRule(array $rule, ?TestUser $user = null): bool
 }
 
 it('adds the membership and not-visited rules to the forums ones', function () {
-    expect(array_keys(app(TargetingRules::class)->all()))->toBe([
+    expect(array_keys(app(TargetingRules::class)->all()))->toEqualCanonicalizing([
         'entitlement', 'username', 'date_is', 'time_between', 'never_posted', 'post_count_between', 'not_posted_days', 'browsing_forum',
         'membership', 'not_visited_days',
     ]);
+});
+
+it('replaces the memberships package\'s membership rule with the profile\'s', function () {
+    expect(app(TargetingRules::class)->all()['membership'])->toBeInstanceOf(MembershipRule::class);
 });
 
 it('passes the membership rule for an active membership, negated or not, and never for a guest', function () {
@@ -36,24 +48,30 @@ it('passes the membership rule for an active membership, negated or not, and nev
         ->and(zcRule(['type' => 'membership']))->toBeFalse();
 });
 
-it('asks the user model about a plan, and cannot confirm one it cannot ask about', function () {
-    $user = new class extends TestUser
-    {
-        public function hasActiveMembershipForPlan(int $planId): bool
-        {
-            return $planId === 7;
-        }
-    };
-    $user->membership_expires_at = now()->addMonth();
+it('counts a membership from the memberships package, with or without the expiry column', function () {
+    $member = TestUser::make('Member');
+    UserMembership::create(['user_id' => $member->id, 'membership_plan_id' => zcPlan()->id, 'status' => 'active', 'provider' => 'local']);
 
-    expect(zcRule(['type' => 'membership', 'plan_id' => 7], $user))->toBeTrue()
-        ->and(zcRule(['type' => 'membership', 'plan_id' => 8], $user))->toBeFalse()
-        ->and(zcRule(['type' => 'membership', 'plan_id' => 8, 'negate' => true], $user))->toBeTrue();
+    expect(zcRule(['type' => 'membership'], $member))->toBeTrue()
+        ->and(zcRule(['type' => 'membership', 'negate' => true], $member))->toBeFalse()
+        ->and(zcRule(['type' => 'membership'], TestUser::make('Nobody')))->toBeFalse();
+});
+
+it('asks the memberships package about a plan, and never counts the expiry column for one', function () {
+    $gold = zcPlan('gold');
+    $silver = zcPlan('silver');
+    $member = TestUser::make('Member');
+    UserMembership::create(['user_id' => $member->id, 'membership_plan_id' => $gold->id, 'status' => 'active', 'provider' => 'local']);
+
+    expect(zcRule(['type' => 'membership', 'plan_id' => $gold->id], $member))->toBeTrue()
+        ->and(zcRule(['type' => 'membership', 'plan_id' => (string) $gold->id], $member))->toBeTrue()
+        ->and(zcRule(['type' => 'membership', 'plan_id' => $silver->id], $member))->toBeFalse()
+        ->and(zcRule(['type' => 'membership', 'plan_id' => $silver->id, 'negate' => true], $member))->toBeTrue();
 
     $plain = TestUser::make('Plain');
     $plain->membership_expires_at = now()->addMonth();
 
-    expect(zcRule(['type' => 'membership', 'plan_id' => 7], $plain))->toBeFalse();
+    expect(zcRule(['type' => 'membership', 'plan_id' => $gold->id], $plain))->toBeFalse();
 });
 
 it('passes the not-visited rule when the last visit is old enough or unknown', function () {

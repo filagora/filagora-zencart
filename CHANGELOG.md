@@ -5,6 +5,9 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- Requires `filagora/filagora-memberships` `^0.1.1`. "Paid" for the forums (`MembershipPaidAccess`) now means a current membership in that package, a future `membership_expires_at`, or the user model's own `hasActiveMembership()` (skipped when the model uses the package's trait, which asks the same service). The profile's `membership` announcement rule keeps the legacy expiry for "has a membership" and leaves plan rules to the package's, replacing the package's rule in either registration order; the old rule that asked the user model about a plan is gone.
+- The memberships gates are mapped: `filagora.memberships.manage` to `operator.users.update` and `filagora.memberships.view_billing` to `operator.audit.view`, which is what gated the same screens on the site.
+
 ## [0.1.0] - 2026-10-17
 
 First release: the Zen Cart profile for the generic Filagora packages. Checked against the live site's schema structure with `filagora:adopt --dry-run`: every package reports adoptable, with no differences.

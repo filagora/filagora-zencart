@@ -1,3 +1,4 @@
 providers:
   - Filagora\Forums\ForumsServiceProvider
   - Filagora\ZenCart\ZenCartServiceProvider
+  - Filagora\Memberships\MembershipsServiceProvider

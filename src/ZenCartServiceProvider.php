@@ -103,6 +103,8 @@ class ZenCartServiceProvider extends ServiceProvider
 
         $this->callAfterResolving(NavigationLinkTypes::class, SiteLinkTypes::register(...));
 
+        // The memberships package adds its own `membership` rule unless one is already there, so
+        // registering this one whenever the registry is first used wins in either order.
         $this->callAfterResolving(TargetingRules::class, function (TargetingRules $rules): void {
             $rules->register($this->app->make(MembershipRule::class));
             $rules->register($this->app->make(NotVisitedDaysRule::class));

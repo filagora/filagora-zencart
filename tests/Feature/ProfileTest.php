@@ -18,6 +18,9 @@ use Filagora\Forums\Services\Posting;
 use Filagora\Forums\Services\ReplyCreation;
 use Filagora\Forums\Services\ThreadCreation;
 use Filagora\Forums\Support\Models;
+use Filagora\Memberships\Concerns\HasMemberships;
+use Filagora\Memberships\Models\MembershipPlan;
+use Filagora\Memberships\Models\UserMembership;
 use Filagora\ZenCart\Models\Forum;
 use Filagora\ZenCart\Models\Post;
 use Filagora\ZenCart\Models\PostAttachment;
@@ -165,8 +168,8 @@ it('lets a super admin through the entitlement gates with no grants at all', fun
         ->and(Gate::forUser(TestUser::make('Nobody'))->allows('filagora.forums.moderate'))->toBeFalse();
 });
 
-it('counts an active membership as paid, by the user model\'s own rule or the expiry column', function () {
-    $check = new MembershipPaidAccess;
+it('counts an active membership as paid: from the memberships package, the expiry column, or the user model\'s own rule', function () {
+    $check = app(MembershipPaidAccess::class);
 
     $member = TestUser::make('Member');
     expect($check->hasPaidAccess($member))->toBeFalse();
@@ -177,6 +180,13 @@ it('counts an active membership as paid, by the user model\'s own rule or the ex
     $member->membership_expires_at = now()->subDay();
     expect($check->hasPaidAccess($member))->toBeFalse();
 
+    $plan = MembershipPlan::create(['code' => 'gold', 'name' => 'Gold', 'is_free' => true]);
+    $membership = UserMembership::create(['user_id' => $member->id, 'membership_plan_id' => $plan->id, 'status' => 'active', 'provider' => 'local']);
+    expect($check->hasPaidAccess($member))->toBeTrue();
+
+    $membership->update(['status' => 'canceled', 'ends_at' => now()->subDay()]);
+    expect($check->hasPaidAccess($member))->toBeFalse();
+
     $custom = new class extends TestUser
     {
         public function hasActiveMembership(): bool
@@ -185,6 +195,20 @@ it('counts an active membership as paid, by the user model\'s own rule or the ex
         }
     };
     expect($check->hasPaidAccess($custom))->toBeTrue();
+});
+
+it('does not ask the memberships package twice for a user model that uses its trait', function () {
+    $user = new class extends TestUser
+    {
+        use HasMemberships;
+    };
+    $user = $user::query()->find(TestUser::make('Trait')->id);
+
+    expect(app(MembershipPaidAccess::class)->hasPaidAccess($user))->toBeFalse();
+
+    UserMembership::create(['user_id' => $user->id, 'membership_plan_id' => MembershipPlan::create(['code' => 'p', 'name' => 'P', 'is_free' => true])->id, 'status' => 'active', 'provider' => 'local']);
+
+    expect(app(MembershipPaidAccess::class)->hasPaidAccess($user))->toBeTrue();
 });
 
 it('opens a paid-only forum to a member, and a forum naming an entitlement to its holders', function () {
@@ -341,4 +365,17 @@ it('leaves a definition that already exists as it is', function () {
     $this->seed(OperatorEntitlementSeeder::class);
 
     expect(EntitlementDefinition::where('key', 'operator.cms.manage')->value('label'))->toBe('Custom label');
+});
+
+it('maps the memberships abilities onto the site\'s operator entitlements', function () {
+    $editor = TestUser::make('Editor');
+    $auditor = TestUser::make('Auditor');
+    UserEntitlementGrant::create(['user_id' => $editor->id, 'entitlement_key' => 'operator.users.update', 'grant_type' => 'manual']);
+    UserEntitlementGrant::create(['user_id' => $auditor->id, 'entitlement_key' => 'operator.audit.view', 'grant_type' => 'manual']);
+
+    expect(Gate::forUser($editor)->allows('filagora.memberships.manage'))->toBeTrue()
+        ->and(Gate::forUser($editor)->allows('filagora.memberships.view_billing'))->toBeFalse()
+        ->and(Gate::forUser($auditor)->allows('filagora.memberships.view_billing'))->toBeTrue()
+        ->and(Gate::forUser($auditor)->allows('filagora.memberships.manage'))->toBeFalse()
+        ->and(Gate::forUser(TestUser::make('Nobody'))->allows('filagora.memberships.manage'))->toBeFalse();
 });

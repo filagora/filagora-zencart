@@ -7,6 +7,7 @@ use Filagora\Entitlements\Models\UserEntitlementGrant;
 use Filagora\Messages\Contracts\MessagingPolicy;
 use Filagora\Notifications\Contracts\EmailSuppression;
 use Filagora\Notifications\Enums\NotificationChannel as Channel;
+use Filagora\Notifications\Events\PreferenceChanged;
 use Filagora\Notifications\NotificationCategories;
 use Filagora\Notifications\Services\Preferences;
 use Filagora\ZenCart\Support\EntitlementEmailSuppression;
@@ -160,4 +161,20 @@ it('declares the module as requiring the notifications package', function () {
     $module = app(ModuleRegistry::class)->all()['zencart'];
 
     expect($module->requires)->toContain('notifications');
+});
+
+it('treats an empty entitlement name as no rule rather than asking for a key that cannot be held', function () {
+    config(['filagora-zencart.notifications.email_entitlement' => '']);
+
+    expect(app(EmailSuppression::class)->isSuppressed(member()))->toBeFalse();
+});
+
+it('copies only email choices, even if an event for another channel is fired', function () {
+    $user = member();
+
+    event(new PreferenceChanged($user->id, 'messages.private_message_contactability', Channel::PUSH, null, '0', 'user', null));
+    event(new PreferenceChanged($user->id, 'forum.thread_updates_digest_frequency', Channel::IN_APP, null, 'weekly', 'user', null));
+
+    expect((bool) DB::table('users')->where('id', $user->id)->value('allow_private_messages'))->toBeTrue()
+        ->and(DB::table('users')->where('id', $user->id)->value('thread_subscription_email_frequency'))->toBe('instant');
 });

@@ -5,6 +5,10 @@ declare(strict_types=1);
 use Filagora\Core\Modules\ModuleRegistry;
 use Filagora\Entitlements\Models\UserEntitlementGrant;
 use Filagora\Messages\Contracts\MessagingPolicy;
+use Filagora\Messages\Exceptions\MessageRefused;
+use Filagora\Messages\Models\PrivateConversation;
+use Filagora\Messages\Services\IgnoredUsers;
+use Filagora\Messages\Services\Messages;
 use Filagora\Notifications\Contracts\EmailSuppression;
 use Filagora\Notifications\Enums\NotificationChannel as Channel;
 use Filagora\Notifications\Events\PreferenceChanged;
@@ -177,4 +181,22 @@ it('copies only email choices, even if an event for another channel is fired', f
 
     expect((bool) DB::table('users')->where('id', $user->id)->value('allow_private_messages'))->toBeTrue()
         ->and(DB::table('users')->where('id', $user->id)->value('thread_subscription_email_frequency'))->toBe('instant');
+});
+
+it('enforces both rules on a send: the member\'s contactability and the ignore lists', function () {
+    [$sender, $closed, $ignored, $open] = [member(), member(['allow_private_messages' => false]), member(), member()];
+    app(IgnoredUsers::class)->ignore($ignored, $sender);
+
+    $refused = null;
+
+    try {
+        app(Messages::class)->send($sender, [$closed, $ignored, $open], 'Hi', 'Hello');
+    } catch (MessageRefused $caught) {
+        $refused = $caught;
+    }
+
+    expect($refused)->toBeInstanceOf(MessageRefused::class)
+        ->and($refused->blocked)->toEqualCanonicalizing([$closed->id, $ignored->id]);
+
+    expect(app(Messages::class)->send($sender, [$open], 'Hi', 'Hello'))->toBeInstanceOf(PrivateConversation::class);
 });

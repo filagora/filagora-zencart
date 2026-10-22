@@ -16,6 +16,11 @@ use Filagora\Forums\Contracts\ContentModerationPolicy;
 use Filagora\Forums\Contracts\PaidAccessCheck;
 use Filagora\Forums\Contracts\PostSignatureResolver;
 use Filagora\Forums\Targeting\TargetingRules;
+use Filagora\Notifications\Category;
+use Filagora\Notifications\Contracts\EmailSuppression;
+use Filagora\Notifications\Enums\NotificationChannel;
+use Filagora\Notifications\Events\PreferenceChanged;
+use Filagora\Notifications\NotificationCategories;
 use Filagora\ZenCart\Cms\MembershipRule;
 use Filagora\ZenCart\Cms\NotVisitedDaysRule;
 use Filagora\ZenCart\Cms\SiteBlockTypes;
@@ -25,11 +30,14 @@ use Filagora\ZenCart\Models\Post;
 use Filagora\ZenCart\Models\PostAttachment;
 use Filagora\ZenCart\Models\Reaction;
 use Filagora\ZenCart\Models\Thread;
+use Filagora\ZenCart\Support\EntitlementEmailSuppression;
 use Filagora\ZenCart\Support\MembershipPaidAccess;
 use Filagora\ZenCart\Support\RoleSuperUserCheck;
+use Filagora\ZenCart\Support\SyncsLegacyNotificationColumns;
 use Filagora\ZenCart\Support\UserFlagsModerationPolicy;
 use Filagora\ZenCart\Support\UserSignatureResolver;
 use Filagora\ZenCart\Support\ZenCartUserAnonymizer;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class ZenCartServiceProvider extends ServiceProvider
@@ -43,6 +51,7 @@ class ZenCartServiceProvider extends ServiceProvider
         $this->app->bind(ContentModerationPolicy::class, UserFlagsModerationPolicy::class);
         $this->app->bind(PostSignatureResolver::class, UserSignatureResolver::class);
         $this->app->bind(UserAnonymizer::class, ZenCartUserAnonymizer::class);
+        $this->app->bind(EmailSuppression::class, EntitlementEmailSuppression::class);
 
         $this->useZenCartModels();
         $this->remapGates();
@@ -52,7 +61,7 @@ class ZenCartServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->make(ModuleRegistry::class)->register(
-            new Module('zencart', 'Filagora Zen Cart profile', 'filagora/filagora-zencart', requires: ['core', 'entitlements', 'forums', 'cms', 'compliance', 'messages']),
+            new Module('zencart', 'Filagora Zen Cart profile', 'filagora/filagora-zencart', requires: ['core', 'entitlements', 'forums', 'cms', 'compliance', 'messages', 'notifications']),
         );
 
         $this->app->make(SchemaRegistry::class)->extend(SchemaExtension::fromFile(
@@ -76,6 +85,8 @@ class ZenCartServiceProvider extends ServiceProvider
             __DIR__.'/../database/migrations/messages',
         ));
 
+        $this->joinNotifications();
+
         $this->loadMigrationsFrom([__DIR__.'/../database/migrations', __DIR__.'/../database/migrations/cms', __DIR__.'/../database/migrations/messages']);
 
         if ($this->app->runningInConsole()) {
@@ -83,6 +94,23 @@ class ZenCartServiceProvider extends ServiceProvider
                 __DIR__.'/../config/filagora-zencart.php' => config_path('filagora-zencart.php'),
             ], 'filagora-zencart-config');
         }
+    }
+
+    /**
+     * The categories only this site has, added after the packages' own so they list after them,
+     * and the copy of two choices into the user columns other parts of the site still read.
+     */
+    private function joinNotifications(): void
+    {
+        $this->app->booted(function (): void {
+            $categories = $this->app->make(NotificationCategories::class);
+            $everywhere = [NotificationChannel::EMAIL, NotificationChannel::PUSH, NotificationChannel::IN_APP];
+
+            $categories->register(new Category('plugins.release_updates', 'Updates to plugins you follow', $everywhere, unsubscribable: true));
+            $categories->register(new Category('privacy.request_updates', 'Updates to your privacy requests'));
+        });
+
+        Event::listen(PreferenceChanged::class, [SyncsLegacyNotificationColumns::class, 'handle']);
     }
 
     /**

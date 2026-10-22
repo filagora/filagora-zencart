@@ -17,7 +17,7 @@
         "filagora/filagora-entitlements": "^0.2",
         "filagora/filagora-forums": "^0.6",
         "filagora/filagora-memberships": "^0.1.1",
-        "filagora/filagora-messages": "^0.2",
+        "filagora/filagora-messages": "^0.3",
         "filagora/filagora-notifications": "^0.1",
         "php": "^8.4"
     },

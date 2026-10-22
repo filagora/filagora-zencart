@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- Requires `filagora/filagora-messages` `^0.3` (ignore lists: the `ignored_users` table, which the live site has with the same shape, so `filagora:adopt` records one more migration for messages). Sending now also honours ignore lists, together with the member's own "accept private messages" choice.
+
 ## [0.2.0] - 2026-10-22
 
 The profile for the memberships and notifications packages. Checked against the live site's schema structure with `filagora:adopt --dry-run`: every package, notifications included, reports adoptable with no differences.

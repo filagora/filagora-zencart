@@ -25,6 +25,7 @@ const STACK_FORUMS_MIGRATIONS = [
 ];
 const STACK_ATTACHMENT_MIGRATION = '2026_10_16_200000_create_filagora_attachment_table';
 const STACK_MESSAGES_MIGRATION = '2026_10_15_000000_create_filagora_message_tables';
+const STACK_IGNORED_MIGRATION = '2026_10_22_000000_create_filagora_ignored_users_table';
 const STACK_MESSAGES_LINK_MIGRATION = '2026_10_16_300000_add_message_links_to_attachments_table';
 const STACK_FORUMS_PROFILE = [
     '2026_10_12_000000_add_zencart_columns_to_forum_tables',
@@ -47,6 +48,13 @@ function stackMessagesMigration(): object
     return require $dir.'/database/migrations/'.STACK_MESSAGES_MIGRATION.'.php';
 }
 
+function stackIgnoredMigration(): object
+{
+    $dir = dirname((new ReflectionClass(MessagesServiceProvider::class))->getFileName(), 2);
+
+    return require $dir.'/database/migrations/'.STACK_IGNORED_MIGRATION.'.php';
+}
+
 function stackProfileMigration(string $name): object
 {
     $dir = $name === STACK_MESSAGES_PROFILE ? 'messages/' : '';
@@ -61,7 +69,7 @@ function stackProfileMigration(string $name): object
  */
 function stackMigrationNames(bool $withProfile = true): array
 {
-    return [...STACK_FORUMS_MIGRATIONS, STACK_MESSAGES_MIGRATION, STACK_MESSAGES_LINK_MIGRATION, ...($withProfile ? [...STACK_FORUMS_PROFILE, STACK_MESSAGES_PROFILE] : [])];
+    return [...STACK_FORUMS_MIGRATIONS, STACK_MESSAGES_MIGRATION, STACK_IGNORED_MIGRATION, STACK_MESSAGES_LINK_MIGRATION, ...($withProfile ? [...STACK_FORUMS_PROFILE, STACK_MESSAGES_PROFILE] : [])];
 }
 
 /**
@@ -71,6 +79,7 @@ function stackMigrationNames(bool $withProfile = true): array
 function stackDown(): void
 {
     stackForumsMigration(STACK_ATTACHMENT_MIGRATION)->down();
+    stackIgnoredMigration()->down();
     stackMessagesMigration()->down();
 
     foreach (array_reverse(STACK_FORUMS_MIGRATIONS) as $name) {
@@ -88,6 +97,7 @@ function stackUp(bool $withProfile = true): void
     }
 
     stackMessagesMigration()->up();
+    stackIgnoredMigration()->up();
     AttachmentLinks::install();
 
     if ($withProfile) {

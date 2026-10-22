@@ -43,7 +43,7 @@ it('adopts the live site\'s message tables with zero differences once the profil
     $plan = app(Adopter::class)->planFor(app(SchemaRegistry::class)->get('messages'));
 
     expect($plan->status)->toBe(AdoptionStatus::Adoptable, implode('; ', $plan->differences))
-        ->and($plan->pendingMigrations)->toEqualCanonicalizing([STACK_MESSAGES_MIGRATION, STACK_MESSAGES_PROFILE]);
+        ->and($plan->pendingMigrations)->toEqualCanonicalizing([STACK_MESSAGES_MIGRATION, STACK_IGNORED_MIGRATION, STACK_MESSAGES_PROFILE]);
 });
 
 it('refuses the generic message tables when the profile\'s columns are missing', function () {

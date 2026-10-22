@@ -13,6 +13,7 @@ use Filagora\Entitlements\EntitlementsServiceProvider;
 use Filagora\Forums\ForumsServiceProvider;
 use Filagora\Memberships\MembershipsServiceProvider;
 use Filagora\Messages\MessagesServiceProvider;
+use Filagora\Notifications\NotificationsServiceProvider as FilagoraNotificationsServiceProvider;
 use Filagora\ZenCart\Tests\Support\TestSupportServiceProvider;
 use Filagora\ZenCart\Tests\Support\TestUser;
 use Filagora\ZenCart\ZenCartServiceProvider;
@@ -52,6 +53,7 @@ abstract class TestCase extends Orchestra
             ComplianceServiceProvider::class,
             MessagesServiceProvider::class,
             MembershipsServiceProvider::class,
+            FilagoraNotificationsServiceProvider::class,
             ZenCartServiceProvider::class,
             TestSupportServiceProvider::class,
         ];

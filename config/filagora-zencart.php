@@ -29,6 +29,8 @@ return [
         'signature' => 'signature',
         'membership_expires_at' => 'membership_expires_at',
         'last_seen_at' => 'last_seen_at',
+        'thread_subscription_email_frequency' => 'thread_subscription_email_frequency',
+        'allow_private_messages' => 'allow_private_messages',
     ],
 
     /*
@@ -72,6 +74,23 @@ return [
             'filagora.memberships.manage' => 'operator.users.update',
             'filagora.memberships.view_billing' => 'operator.audit.view',
         ],
+        'filagora-notifications.gates' => [
+            'filagora.notifications.view' => 'operator.users.update',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notifications
+    |--------------------------------------------------------------------------
+    |
+    | `email_entitlement`: members without this entitlement get no optional notification mail
+    | (every member is granted it at registration; the command that quiets inactive subscribers
+    | revokes it). Set to null to ignore it.
+    |
+    */
+    'notifications' => [
+        'email_entitlement' => 'notifications.email.enabled',
     ],
 
     /*

@@ -14,6 +14,7 @@ Guidance for AI coding agents working in `filagora-zencart`. `CLAUDE.md` imports
 - **Ability map** in `config/filagora-zencart.php`, turning `filagora.*` staff abilities into `operator.*` entitlement keys.
 - **cms extras** (`Cms/`): the site's block types and old-name aliases, menu link kinds.
 - **Seeders** (`Seeders/`).
+- **Notifications**: the site's own categories, the entitlement-aware email suppression, and the copy of two choices into the user columns other parts of the site still read.
 
 ## Working here
 
@@ -21,7 +22,7 @@ Guidance for AI coding agents working in `filagora-zencart`. `CLAUDE.md` imports
 - It may name the origin site here (the repo is private), but never copy private details into any public Filagora repository.
 - Do not push generic behaviour in here. If a rule is useful to anyone, it belongs in the owning package behind a contract; this package only binds site-specific answers.
 - The private repo has no branch protection (free plan): still use a branch and PR.
-- Memberships wiring is merged after `v0.1.0` and untagged. Confirm before tagging.
+- The memberships and notifications wiring is merged after `v0.1.0` and untagged. Confirm before tagging.
 
 ## Commands
 

@@ -107,3 +107,12 @@ it('leaves an archive alone when it has no pluginId, or no single manifest, or n
         ->and($manifest->read($none))->toBeNull()
         ->and($manifest->read($two))->toBeNull();
 });
+
+it('never writes an id of zero or less over a real one', function () {
+    $manifest = new ManifestPluginId;
+    $path = Zips::path(Zips::encapsulated('widget', 'v1.0.0', 2431));
+
+    expect($manifest->stamp($path, 0))->toBeFalse()
+        ->and($manifest->stamp($path, -5))->toBeFalse()
+        ->and($manifest->read($path))->toBe(2431);
+});

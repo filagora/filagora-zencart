@@ -14,6 +14,7 @@ use Filagora\ZenCart\Enums\Encapsulated;
 use Filagora\ZenCart\Models\Plugin;
 use Filagora\ZenCart\Models\ZcVersion;
 use Filagora\ZenCart\Plugins\ManifestPluginId;
+use Filagora\ZenCart\Plugins\ZenCartReleaseExtension;
 use Filagora\ZenCart\Tests\Support\TestUser;
 use Filagora\ZenCart\Tests\Support\Zips;
 use Illuminate\Support\Facades\Storage;
@@ -195,4 +196,16 @@ it('counts a Zen Cart version chosen twice once', function () {
     $release = submitNew(uploader(), uploadInput(['readme.txt' => 'x'], '1.0.0', ['zc_versions' => [$v->id, (string) $v->id]]));
 
     expect($release->zcVersions)->toHaveCount(1);
+});
+
+it('does not give a plugin an install folder that another plugin took while it was being saved', function () {
+    $author = uploader();
+    $release = submitNew($author, uploadInput(['readme.txt' => 'x'], '1.0.0', ['encapsulated' => 'no']));
+    $plugin = Plugin::find($release->plugin_id);
+    Storage::disk('local')->put($release->zip_path, file_get_contents(Zips::path(Zips::encapsulated('contested'))));
+    Plugin::forceCreate(['name' => 'Taker', 'slug' => 'taker', 'plugin_type_id' => $plugin->plugin_type_id, 'status' => PluginStatus::ACTIVE, 'zip_root' => 'contested']);
+
+    app(ZenCartReleaseExtension::class)->created($plugin, $release, uploadInput([], '1.0.0', ['encapsulated' => 'yes']));
+
+    expect($plugin->refresh()->zip_root)->toBeNull();
 });

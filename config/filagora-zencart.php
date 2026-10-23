@@ -74,6 +74,13 @@ return [
             'filagora.memberships.manage' => 'operator.users.update',
             'filagora.memberships.view_billing' => 'operator.audit.view',
         ],
+        'filagora-plugins.gates' => [
+            'filagora.plugins.moderate' => 'operator.plugin.moderate',
+            'filagora.plugins.auto_publish' => 'operator.plugin.auto_publish',
+        ],
+        'filagora-plugins-security.gates' => [
+            'filagora.plugins.security' => 'operator.plugin.moderate',
+        ],
         'filagora-notifications.gates' => [
             'filagora.notifications.view' => 'operator.users.update',
         ],
@@ -91,6 +98,20 @@ return [
     */
     'notifications' => [
         'email_entitlement' => 'notifications.email.enabled',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Plugins
+    |--------------------------------------------------------------------------
+    |
+    | `stamp_manifest_id`: write a plugin's id into the manifest of a release's stored archive when
+    | the release goes live, so a cart reads the number the version check knows. Switch off to
+    | leave stored archives untouched.
+    |
+    */
+    'plugins' => [
+        'stamp_manifest_id' => true,
     ],
 
     /*

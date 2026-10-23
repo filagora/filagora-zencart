@@ -22,10 +22,16 @@ use Filagora\Notifications\Contracts\EmailSuppression;
 use Filagora\Notifications\Enums\NotificationChannel;
 use Filagora\Notifications\Events\PreferenceChanged;
 use Filagora\Notifications\NotificationCategories;
+use Filagora\Plugins\Contracts\ApiFields;
+use Filagora\Plugins\Contracts\Compatibility;
+use Filagora\Plugins\Contracts\PluginIdentifiers;
+use Filagora\Plugins\Events\ReleasePublished;
+use Filagora\Plugins\Release\ReleaseExtensions;
 use Filagora\ZenCart\Cms\MembershipRule;
 use Filagora\ZenCart\Cms\NotVisitedDaysRule;
 use Filagora\ZenCart\Cms\SiteBlockTypes;
 use Filagora\ZenCart\Cms\SiteLinkTypes;
+use Filagora\ZenCart\Console\StampManifestIdsCommand;
 use Filagora\ZenCart\Models\Forum;
 use Filagora\ZenCart\Models\Plugin;
 use Filagora\ZenCart\Models\PluginRelease;
@@ -33,6 +39,11 @@ use Filagora\ZenCart\Models\Post;
 use Filagora\ZenCart\Models\PostAttachment;
 use Filagora\ZenCart\Models\Reaction;
 use Filagora\ZenCart\Models\Thread;
+use Filagora\ZenCart\Plugins\LegacyPluginIdentifiers;
+use Filagora\ZenCart\Plugins\StampManifestPluginId;
+use Filagora\ZenCart\Plugins\ZcVersionCompatibility;
+use Filagora\ZenCart\Plugins\ZenCartApiFields;
+use Filagora\ZenCart\Plugins\ZenCartReleaseExtension;
 use Filagora\ZenCart\Support\EntitlementEmailSuppression;
 use Filagora\ZenCart\Support\MembershipPaidAccess;
 use Filagora\ZenCart\Support\RoleSuperUserCheck;
@@ -55,6 +66,9 @@ class ZenCartServiceProvider extends ServiceProvider
         $this->app->bind(PostSignatureResolver::class, UserSignatureResolver::class);
         $this->app->bind(UserAnonymizer::class, ZenCartUserAnonymizer::class);
         $this->app->bind(EmailSuppression::class, EntitlementEmailSuppression::class);
+        $this->app->bind(Compatibility::class, ZcVersionCompatibility::class);
+        $this->app->bind(ApiFields::class, ZenCartApiFields::class);
+        $this->app->bind(PluginIdentifiers::class, LegacyPluginIdentifiers::class);
 
         $this->useZenCartModels();
         $this->remapGates();
@@ -100,14 +114,28 @@ class ZenCartServiceProvider extends ServiceProvider
         );
 
         $this->joinNotifications();
+        $this->joinPlugins();
 
         $this->loadMigrationsFrom([__DIR__.'/../database/migrations', __DIR__.'/../database/migrations/cms', __DIR__.'/../database/migrations/messages', __DIR__.'/../database/migrations/plugins', __DIR__.'/../database/migrations/zc-versions']);
 
         if ($this->app->runningInConsole()) {
+            $this->commands([StampManifestIdsCommand::class]);
+
             $this->publishes([
                 __DIR__.'/../config/filagora-zencart.php' => config_path('filagora-zencart.php'),
             ], 'filagora-zencart-config');
         }
+    }
+
+    /**
+     * The upload checks and fields of a Zen Cart plugin, and the manifest id written into an
+     * archive when its release goes live.
+     */
+    private function joinPlugins(): void
+    {
+        $this->callAfterResolving(ReleaseExtensions::class, fn (ReleaseExtensions $extensions) => $extensions->register($this->app->make(ZenCartReleaseExtension::class)));
+
+        Event::listen(ReleasePublished::class, [StampManifestPluginId::class, 'handle']);
     }
 
     /**

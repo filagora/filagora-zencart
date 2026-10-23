@@ -205,7 +205,7 @@ it('does not give a plugin an install folder that another plugin took while it w
     Storage::disk('local')->put($release->zip_path, file_get_contents(Zips::path(Zips::encapsulated('contested'))));
     Plugin::forceCreate(['name' => 'Taker', 'slug' => 'taker', 'plugin_type_id' => $plugin->plugin_type_id, 'status' => PluginStatus::ACTIVE, 'zip_root' => 'contested']);
 
-    app(ZenCartReleaseExtension::class)->created($plugin, $release, uploadInput([], '1.0.0', ['encapsulated' => 'yes']));
+    app(ZenCartReleaseExtension::class)->created($plugin, $release, uploadInput(['readme.txt' => 'x'], '1.0.0', ['encapsulated' => 'yes']));
 
     expect($plugin->refresh()->zip_root)->toBeNull();
 });

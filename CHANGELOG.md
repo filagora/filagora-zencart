@@ -5,6 +5,9 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- Requires `filagora/filagora-plugins` `^0.3`. The schema the site's plugin library has beyond the generic package, declared so `filagora:adopt` accepts the live tables: on `plugins` the old library id (`legacy_vbulletin_file_id`, unique) and the install folder (`zip_root`, unique); on `plugin_releases` the `version_folder` and the `encapsulated` flag (`yes`, `no`, `unknown`); and the two whole tables `plugin_zc_versions` and `plugin_release_zc_versions` (the Zen Cart versions a release works with), as a snapshot of their own under the `zencart` module. Each is checked against the live definitions: a dry-run of `filagora:adopt` against the production structure reports `plugins`, `plugins-security` and `zencart` all adoptable.
+- Model subclasses `Plugin` (`versionCheckId()`: the library id a cart asks about, or the plugin's own id) and `PluginRelease` (`encapsulated` as the `Encapsulated` enum, `zcVersions()`), swapped in through `filagora.models`, and the `ZcVersion` model.
+
 ## [0.3.0] - 2026-10-22
 
 The profile on `filagora-messages` `^0.3` (ignore lists). Checked against the live site's schema structure with `filagora:adopt --dry-run`: every package reports adoptable with no differences; messages now records three migrations (its tables, the ignore list, and this profile's columns). A site on `v0.2.0` must move `filagora/filagora-messages` to `^0.3`.

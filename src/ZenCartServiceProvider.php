@@ -9,6 +9,7 @@ use Filagora\Cms\Navigation\NavigationLinkTypes;
 use Filagora\Compliance\Contracts\UserAnonymizer;
 use Filagora\Core\Modules\Module;
 use Filagora\Core\Modules\ModuleRegistry;
+use Filagora\Core\Schema\PackageSchema;
 use Filagora\Core\Schema\SchemaExtension;
 use Filagora\Core\Schema\SchemaRegistry;
 use Filagora\Entitlements\Contracts\SuperUserCheck;
@@ -26,6 +27,8 @@ use Filagora\ZenCart\Cms\NotVisitedDaysRule;
 use Filagora\ZenCart\Cms\SiteBlockTypes;
 use Filagora\ZenCart\Cms\SiteLinkTypes;
 use Filagora\ZenCart\Models\Forum;
+use Filagora\ZenCart\Models\Plugin;
+use Filagora\ZenCart\Models\PluginRelease;
 use Filagora\ZenCart\Models\Post;
 use Filagora\ZenCart\Models\PostAttachment;
 use Filagora\ZenCart\Models\Reaction;
@@ -61,7 +64,7 @@ class ZenCartServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->make(ModuleRegistry::class)->register(
-            new Module('zencart', 'Filagora Zen Cart profile', 'filagora/filagora-zencart', requires: ['core', 'entitlements', 'forums', 'cms', 'compliance', 'messages', 'notifications']),
+            new Module('zencart', 'Filagora Zen Cart profile', 'filagora/filagora-zencart', requires: ['core', 'entitlements', 'forums', 'cms', 'compliance', 'messages', 'notifications', 'plugins']),
         );
 
         $this->app->make(SchemaRegistry::class)->extend(SchemaExtension::fromFile(
@@ -85,9 +88,20 @@ class ZenCartServiceProvider extends ServiceProvider
             __DIR__.'/../database/migrations/messages',
         ));
 
+        $this->app->make(SchemaRegistry::class)->extend(SchemaExtension::fromFile(
+            'zencart',
+            'plugins',
+            __DIR__.'/../database/extensions/plugins.php',
+            __DIR__.'/../database/migrations/plugins',
+        ));
+
+        $this->app->make(SchemaRegistry::class)->register(
+            PackageSchema::fromFile('zencart', __DIR__.'/../database/schema.php', __DIR__.'/../database/migrations/zc-versions'),
+        );
+
         $this->joinNotifications();
 
-        $this->loadMigrationsFrom([__DIR__.'/../database/migrations', __DIR__.'/../database/migrations/cms', __DIR__.'/../database/migrations/messages']);
+        $this->loadMigrationsFrom([__DIR__.'/../database/migrations', __DIR__.'/../database/migrations/cms', __DIR__.'/../database/migrations/messages', __DIR__.'/../database/migrations/plugins', __DIR__.'/../database/migrations/zc-versions']);
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
@@ -145,7 +159,7 @@ class ZenCartServiceProvider extends ServiceProvider
      */
     private function useZenCartModels(): void
     {
-        foreach (['forum' => Forum::class, 'thread' => Thread::class, 'post' => Post::class, 'reaction' => Reaction::class, 'post_attachment' => PostAttachment::class] as $key => $class) {
+        foreach (['forum' => Forum::class, 'thread' => Thread::class, 'post' => Post::class, 'reaction' => Reaction::class, 'post_attachment' => PostAttachment::class, 'plugin' => Plugin::class, 'release' => PluginRelease::class] as $key => $class) {
             if (config("filagora.models.{$key}") === null) {
                 config(["filagora.models.{$key}" => $class]);
             }

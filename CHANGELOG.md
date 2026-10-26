@@ -5,6 +5,12 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+The plugin version check and its cache sync (slices 8c and 8d), and the Zen Cart screens (slice 8e).
+
+- **Version check (8c).** `/plugin_check.php` (query form and path form) and `/plugincheck/{id}`, registered unless `versioncheck.routes` is false: the one-element JSON array every deployed cart reads, looked up by old library id then own id, active plugins only, newest release, unauthenticated by design (no User-Agent check, no signature), public-cacheable for `versioncheck.cache_ttl_seconds` (default 900; 0 turns it off), empty answers too, limited by the `legacy-plugin-check` limiter (per address and plugin, plus a per-address cap, never keyed on the User-Agent). `VersionCheckController` is invokable so a host can answer the old `downloads.php?do=versioncheck` URL in place. `versioncheck.plugin_route` and `thread_route` name the host's pages for `link` and `support_thread`. See `docs/plugin-versioncheck.md`.
+- **Cache sync (8d).** A queued, unique job pushes a library plugin's answer to the version-check cache when the plugin or one of its releases is saved or deleted (`PUT` with a `payload` field, `DELETE` when it no longer answers; bearer token plus `X-Auth-Token`; user agent `Plugin Cache Update [id]`), off unless `cache_sync.enabled` (`PLUGIN_CACHE_SYNC_ENABLED`, `_BASE_URL`, `_AUTH_TOKEN`). `filagora:zencart:push-versioncheck-cache` (`--id`, `--now`) sends everything. Difference from the site this was extracted from: releases are observed too, so a release change reaches the cache without the plugin being saved.
+- **Screens (8e).** `FilagoraZenCartPlugin` adds the Zen Cart versions screen (list, create, edit, delete; gated like the plugin screens); the plugin release list gains encapsulated and Zen Cart versions columns and filters through the plugins package's `ReleaseScreens`.
+
 ## [0.4.0] - 2026-10-23
 
 The plugin library on the profile: the schema (slice 8a) and plugin uploads (slice 8b). Requires `filagora/filagora-plugins` `^0.3`. Checked against the live site's schema structure with `filagora:adopt --dry-run`: every package, including `plugins`, `plugins-security` and this profile's own `zencart` module (the two Zen Cart version tables), reports adoptable with no differences. A site on `v0.3.0` must also install `filagora/filagora-plugins`.

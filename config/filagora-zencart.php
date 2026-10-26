@@ -116,6 +116,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Plugin version check
+    |--------------------------------------------------------------------------
+    |
+    | `routes`: register `/plugin_check.php` and `/plugincheck/{id}`, the URLs deployed carts call
+    | (switch off to register them yourself). `cache_ttl_seconds`: how long shared caches may hold
+    | an answer, empty answers too (0 turns the cache header off). `plugin_route` and `thread_route`
+    | are the host's route names for a plugin's page and a forum thread, used for the `link` and
+    | `support_thread` fields; null uses the plugins package's `routes.plugin` and `routes.thread`,
+    | then `plugins.show` and `threads.show`. A field is left empty when the route does not exist.
+    |
+    */
+    'versioncheck' => [
+        'routes' => true,
+        'cache_ttl_seconds' => 900,
+        'plugin_route' => null,
+        'thread_route' => null,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Menu link kinds
     |--------------------------------------------------------------------------
     |
@@ -173,6 +193,22 @@ return [
             'legacy_password_algo' => null,
             'legacy_password_imported_at' => null,
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Version-check cache sync
+    |--------------------------------------------------------------------------
+    |
+    | Push each plugin's version-check answer to the cache in front of Zen Cart stores (the
+    | separate cache application) whenever the plugin or a release changes. `auth_token` is shared with
+    | that app: set the same value on both sides.
+    |
+    */
+    'cache_sync' => [
+        'enabled' => env('PLUGIN_CACHE_SYNC_ENABLED', false),
+        'base_url' => env('PLUGIN_CACHE_SYNC_BASE_URL'),
+        'auth_token' => env('PLUGIN_CACHE_SYNC_AUTH_TOKEN'),
     ],
 
 ];

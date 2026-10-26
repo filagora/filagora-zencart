@@ -58,6 +58,9 @@ It reads these columns from your users table and never adds them: `always_modera
 `moderate_first_forum_post`, `signature`, `membership_expires_at` (the names are configurable
 under `user_attributes`).
 
+- **The plugin version check.** The URLs deployed Zen Cart stores call (`/plugin_check.php`, `/plugincheck/{id}`), a callable for a host's old `downloads.php` route, and the cache sync that keeps the version-check cache current. See [docs/plugin-versioncheck.md](docs/plugin-versioncheck.md).
+- **Staff screens.** `FilagoraZenCartPlugin` (register it on the panel beside the plugins package's plugin) adds the Zen Cart versions list, and the release list gets encapsulated and Zen Cart version columns and filters.
+
 ## Install
 
 ```bash

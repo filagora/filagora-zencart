@@ -8,3 +8,4 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 pest()->extend(TestCase::class)->use(RefreshDatabase::class)->in('Feature');
 
 require_once __DIR__.'/Support/stack.php';
+require_once __DIR__.'/Support/plugins.php';

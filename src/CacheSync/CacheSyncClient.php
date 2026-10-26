@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Tells the version-check cache in front of Zen Cart stores (the separate server-manager app) what
+ * Tells the version-check cache in front of Zen Cart stores (a separate cache application) what
  * a plugin's answer now is, so a store never waits for the cache to expire. Switched off unless
  * `filagora-zencart.cache_sync.enabled`; talks to `{base_url}/versioncheck/{id}` with the shared
  * token as both a bearer token and an `X-Auth-Token` header.

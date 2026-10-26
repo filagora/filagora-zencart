@@ -201,13 +201,13 @@ return [
     |--------------------------------------------------------------------------
     |
     | Push each plugin's version-check answer to the cache in front of Zen Cart stores (the
-    | server-manager app) whenever the plugin or a release changes. `auth_token` is shared with
+    | separate cache application) whenever the plugin or a release changes. `auth_token` is shared with
     | that app: set the same value on both sides.
     |
     */
     'cache_sync' => [
         'enabled' => env('PLUGIN_CACHE_SYNC_ENABLED', false),
-        'base_url' => env('PLUGIN_CACHE_SYNC_BASE_URL', 'https://plugins.zen-cart.com'),
+        'base_url' => env('PLUGIN_CACHE_SYNC_BASE_URL'),
         'auth_token' => env('PLUGIN_CACHE_SYNC_AUTH_TOKEN'),
     ],
 

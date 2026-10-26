@@ -1,6 +1,6 @@
 # Plugin version check
 
-The plugin version check is how a deployed Zen Cart store asks "is there a newer version of plugin N?". This profile answers it from the plugin library, and keeps the separate cache in front of stores up to date. Sister document: `docs/plugin-cache-sync.md` in the `server-manager` repository (the cache); read both before changing either side.
+The plugin version check is how a deployed Zen Cart store asks "is there a newer version of plugin N?". This profile answers it from the plugin library, and keeps the separate cache in front of stores up to date. The cache is a separate application with its own contract document; read both before changing either side.
 
 ## Who calls it
 
@@ -20,7 +20,7 @@ Three consequences everything here depends on:
 2. **A missing User-Agent is the normal case**, not a bot signature.
 3. **A redirect reaches only some of them.** v1.5.5/1.5.6 cannot follow one, so the old `downloads.php` URL is answered in place (see "The old downloads.php URL").
 
-The ping server (`server-manager`) sits in front of the v1.5.7+ population: it receives their POST, fetches `GET /plugincheck/{id}` from here with `User-Agent: ZC Pingserver`, and caches the result.
+A ping server sits in front of the v1.5.7+ population: it receives their POST, fetches `GET /plugincheck/{id}` from here with its own User-Agent, and caches the result.
 
 ## The routes
 
@@ -105,7 +105,7 @@ Configuration, in `config/filagora-zencart.php` under `cache_sync`, read from th
 
 ```dotenv
 PLUGIN_CACHE_SYNC_ENABLED=false
-PLUGIN_CACHE_SYNC_BASE_URL=https://plugins.example.org
+PLUGIN_CACHE_SYNC_BASE_URL=https://cache.example.org
 PLUGIN_CACHE_SYNC_AUTH_TOKEN=
 ```
 

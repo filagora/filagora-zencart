@@ -44,7 +44,7 @@ it('answers the path forms too', function () {
 it('needs no User-Agent and ignores whatever one names', function () {
     checkedPlugin();
 
-    foreach ([null, 'Plugin Version Check [999] example.com', 'ZC Pingserver', 'curl/8.0'] as $agent) {
+    foreach ([null, 'Plugin Version Check [999] example.com', 'Ping Server', 'curl/8.0'] as $agent) {
         $request = $agent === null ? $this->withHeaders(['User-Agent' => '']) : $this->withHeader('User-Agent', $agent);
 
         $request->get('/plugin_check.php?do=versioncheck&id=2431')->assertOk()->assertJsonPath('0.id', '2431');

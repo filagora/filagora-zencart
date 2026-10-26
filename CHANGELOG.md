@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-26
+
 The plugin version check and its cache sync (slices 8c and 8d), and the Zen Cart screens (slice 8e).
 
 - **Version check (8c).** `/plugin_check.php` (query form and path form) and `/plugincheck/{id}`, registered unless `versioncheck.routes` is false: the one-element JSON array every deployed cart reads, looked up by old library id then own id, active plugins only, newest release, unauthenticated by design (no User-Agent check, no signature), public-cacheable for `versioncheck.cache_ttl_seconds` (default 900; 0 turns it off), empty answers too, limited by the `legacy-plugin-check` limiter (per address and plugin, plus a per-address cap, never keyed on the User-Agent). `VersionCheckController` is invokable so a host can answer the old `downloads.php?do=versioncheck` URL in place. `versioncheck.plugin_route` and `thread_route` name the host's pages for `link` and `support_thread`. See `docs/plugin-versioncheck.md`.

@@ -19,6 +19,24 @@ class Plugin extends BasePlugin
         parent::__construct($attributes);
     }
 
+    protected static function booted(): void
+    {
+        // A plugin with no legacy id is known to carts by its own row key. When an imported plugin
+        // already holds that number as its legacy id the version check would answer for the wrong
+        // plugin, so the new row is given an unused id instead.
+        static::created(function (self $plugin): void {
+            if ($plugin->legacy_vbulletin_file_id !== null || ! static::query()->where('legacy_vbulletin_file_id', $plugin->getKey())->exists()) {
+                return;
+            }
+
+            $plugin->legacy_vbulletin_file_id = max(
+                (int) static::query()->max('id'),
+                (int) static::query()->max('legacy_vbulletin_file_id'),
+            ) + 1;
+            $plugin->save();
+        });
+    }
+
     protected function casts(): array
     {
         return array_merge(parent::casts(), [

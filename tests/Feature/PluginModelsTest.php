@@ -110,3 +110,18 @@ it('removes the links, not the versions, with a release, and the links with a ve
     expect(DB::table(Tables::name('plugin_release_zc_versions'))->count())->toBe(0)
         ->and(ZcVersion::count())->toBe(1);
 });
+
+it('gives a new plugin an unused library id when its own id is held by an imported plugin', function () {
+    $imported = zcPlugin(['legacy_vbulletin_file_id' => 99999]);
+    $type = PluginType::query()->firstOrCreate(['slug' => 'plugin'], ['name' => 'Plugin']);
+
+    $colliding = Plugin::query()->forceCreate(['id' => 99999, 'name' => 'New', 'slug' => 'new', 'plugin_type_id' => $type->id])->refresh();
+
+    expect($colliding->legacy_vbulletin_file_id)->toBe(100000)
+        ->and($colliding->versionCheckId())->toBe(100000)
+        ->and($imported->fresh()->legacy_vbulletin_file_id)->toBe(99999);
+});
+
+it('leaves a new plugin without a library id when nothing collides', function () {
+    expect(zcPlugin()->legacy_vbulletin_file_id)->toBeNull();
+});

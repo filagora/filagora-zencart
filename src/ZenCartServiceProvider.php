@@ -26,12 +26,17 @@ use Filagora\Plugins\Contracts\ApiFields;
 use Filagora\Plugins\Contracts\Compatibility;
 use Filagora\Plugins\Contracts\PluginIdentifiers;
 use Filagora\Plugins\Events\ReleasePublished;
+use Filagora\Plugins\Filament\ReleaseScreens;
 use Filagora\Plugins\Release\ReleaseExtensions;
+use Filagora\Plugins\Support\Models;
+use Filagora\ZenCart\CacheSync\PushAllCommand;
+use Filagora\ZenCart\CacheSync\SyncObserver;
 use Filagora\ZenCart\Cms\MembershipRule;
 use Filagora\ZenCart\Cms\NotVisitedDaysRule;
 use Filagora\ZenCart\Cms\SiteBlockTypes;
 use Filagora\ZenCart\Cms\SiteLinkTypes;
 use Filagora\ZenCart\Console\StampManifestIdsCommand;
+use Filagora\ZenCart\Enums\Encapsulated;
 use Filagora\ZenCart\Models\Forum;
 use Filagora\ZenCart\Models\Plugin;
 use Filagora\ZenCart\Models\PluginRelease;
@@ -39,6 +44,7 @@ use Filagora\ZenCart\Models\Post;
 use Filagora\ZenCart\Models\PostAttachment;
 use Filagora\ZenCart\Models\Reaction;
 use Filagora\ZenCart\Models\Thread;
+use Filagora\ZenCart\Models\ZcVersion;
 use Filagora\ZenCart\Plugins\LegacyPluginIdentifiers;
 use Filagora\ZenCart\Plugins\StampManifestPluginId;
 use Filagora\ZenCart\Plugins\ZcVersionCompatibility;
@@ -51,7 +57,13 @@ use Filagora\ZenCart\Support\SyncsLegacyNotificationColumns;
 use Filagora\ZenCart\Support\UserFlagsModerationPolicy;
 use Filagora\ZenCart\Support\UserSignatureResolver;
 use Filagora\ZenCart\Support\ZenCartUserAnonymizer;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class ZenCartServiceProvider extends ServiceProvider
@@ -115,11 +127,13 @@ class ZenCartServiceProvider extends ServiceProvider
 
         $this->joinNotifications();
         $this->joinPlugins();
+        $this->registerVersionCheck();
+        $this->syncVersionCheckCache();
 
         $this->loadMigrationsFrom([__DIR__.'/../database/migrations', __DIR__.'/../database/migrations/cms', __DIR__.'/../database/migrations/messages', __DIR__.'/../database/migrations/plugins', __DIR__.'/../database/migrations/zc-versions']);
 
         if ($this->app->runningInConsole()) {
-            $this->commands([StampManifestIdsCommand::class]);
+            $this->commands([StampManifestIdsCommand::class, PushAllCommand::class]);
 
             $this->publishes([
                 __DIR__.'/../config/filagora-zencart.php' => config_path('filagora-zencart.php'),
@@ -133,6 +147,29 @@ class ZenCartServiceProvider extends ServiceProvider
      */
     private function joinPlugins(): void
     {
+        $this->callAfterResolving(ReleaseScreens::class, function (ReleaseScreens $screens): void {
+            $screens->column('zencart.encapsulated', fn () => TextColumn::make('encapsulated')
+                ->label('Encapsulated')
+                ->formatStateUsing(fn ($state): string => $state instanceof Encapsulated ? $state->label() : (string) $state)
+                ->toggleable());
+
+            $screens->column('zencart.zc_versions', fn () => TextColumn::make('zcVersions.version')
+                ->label('Zen Cart versions')
+                ->badge()
+                ->toggleable());
+
+            $screens->filter('zencart.encapsulated', fn () => SelectFilter::make('encapsulated')
+                ->label('Encapsulated')
+                ->options(collect(Encapsulated::cases())->mapWithKeys(fn (Encapsulated $case): array => [$case->value => $case->label()])->all()));
+
+            $screens->filter('zencart.zc_version', fn () => SelectFilter::make('zc_version')
+                ->label('Zen Cart version')
+                ->options(fn (): array => ZcVersion::query()->orderBy('position')->pluck('version', 'id')->all())
+                ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
+                    ? $query->whereHas('zcVersions', fn (Builder $versions) => $versions->whereKey($data['value']))
+                    : $query));
+        });
+
         $this->callAfterResolving(ReleaseExtensions::class, fn (ReleaseExtensions $extensions) => $extensions->register($this->app->make(ZenCartReleaseExtension::class)));
 
         Event::listen(ReleasePublished::class, [StampManifestPluginId::class, 'handle']);
@@ -203,6 +240,51 @@ class ZenCartServiceProvider extends ServiceProvider
     {
         foreach ((array) config('filagora-zencart.gates') as $key => $map) {
             config([$key => $map]);
+        }
+    }
+
+    /**
+     * The version-check URLs and the limit on them: per address and plugin, and a cap per address
+     * overall. Never keyed on the User-Agent, which carts do not set reliably.
+     */
+    private function registerVersionCheck(): void
+    {
+        RateLimiter::for('legacy-plugin-check', function (Request $request): array {
+            $pluginId = (int) $request->query('id', 0);
+
+            if ($pluginId <= 0) {
+                $path = trim((string) $request->route('legacyPath', ''), '/');
+
+                if (ctype_digit($path)) {
+                    $pluginId = (int) $path;
+                } elseif (preg_match('#versioncheck/(\d+)#', $path, $matches) === 1) {
+                    $pluginId = (int) $matches[1];
+                }
+            }
+
+            $ip = 'legacy-plugin-check:ip:'.($request->ip() ?: 'unknown');
+            $plugin = $ip.':id:'.$pluginId;
+
+            return [
+                Limit::perMinute(20)->by('legacy-plugin-check:minute:'.$plugin),
+                Limit::perHour(300)->by('legacy-plugin-check:hour:'.$plugin),
+                Limit::perMinute(60)->by('legacy-plugin-check:minute:'.$ip),
+                Limit::perHour(600)->by('legacy-plugin-check:hour:'.$ip),
+            ];
+        });
+
+        if ((bool) config('filagora-zencart.versioncheck.routes', true)) {
+            $this->loadRoutesFrom(__DIR__.'/../routes/versioncheck.php');
+        }
+    }
+
+    /**
+     * Pushes a plugin's answer to the cache when the plugin or one of its releases changes.
+     */
+    private function syncVersionCheckCache(): void
+    {
+        foreach (['plugin', 'release'] as $key) {
+            $this->app->booted(fn () => Models::class($key)::observe(SyncObserver::class));
         }
     }
 }

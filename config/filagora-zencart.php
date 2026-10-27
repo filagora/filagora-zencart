@@ -35,6 +35,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Old forum profile fallback
+    |--------------------------------------------------------------------------
+    |
+    | A member imported from the old vBulletin forum may arrive with an empty profile (biography,
+    | location, interests, occupation, real name), and the old forum's own tables may still be in the
+    | database. With this on, a page that shows a member can fill the empty fields from them, and
+    | the time they were last seen, without saving anything. It does nothing when the tables are
+    | missing. Turn it off once the data has been copied into the users table.
+    |
+    */
+    'old_forum_profile' => [
+        'enabled' => (bool) env('FILAGORA_ZENCART_OLD_FORUM_PROFILE', true),
+        'member_map_table' => 'legacy_import_user_maps',
+        'userfield_table' => 'vb_userfield',
+        'user_table' => 'vb_user',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Operator entitlement keys
     |--------------------------------------------------------------------------
     |

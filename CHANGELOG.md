@@ -5,6 +5,13 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-27
+
+Two small additions the site needed while it moved onto the profile.
+
+- **Library id collision guard.** A new plugin whose own id is already held by an imported plugin as its old library id is given an unused library id when it is created, so the version check cannot answer for the wrong plugin. `Plugin::versionCheckId()` returns the new id.
+- **Old forum profile fallback.** `OldForumProfile::fill()` fills an imported member's empty biography, location, interests, occupation and real name on the model from the old vBulletin `vb_userfield` table, and `lastActivity()` reports the time they were last active from `vb_user`. Read-only, a no-op when the tables are missing, and switched off with `old_forum_profile.enabled` (`FILAGORA_ZENCART_OLD_FORUM_PROFILE`). Turn it off once the data has been copied into the users table.
+
 ## [0.5.0] - 2026-10-26
 
 The plugin version check and its cache sync (slices 8c and 8d), and the Zen Cart screens (slice 8e).

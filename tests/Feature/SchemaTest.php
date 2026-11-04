@@ -88,7 +88,7 @@ it('records the profile\'s migrations as run when it adopts', function () {
 
     $this->artisan('filagora:adopt', ['--package' => 'forums'])->assertExitCode(0);
 
-    expect(DB::table('migrations')->whereIn('migration', [...STACK_FORUMS_MIGRATIONS, ...STACK_FORUMS_PROFILE, STACK_MESSAGES_LINK_MIGRATION])->count())->toBe(12);
+    expect(DB::table('migrations')->whereIn('migration', [...STACK_FORUMS_MIGRATIONS, ...STACK_FORUMS_PROFILE, STACK_MESSAGES_LINK_MIGRATION])->count())->toBe(14);
 });
 
 it('refuses a site whose extra column differs from the declared one', function () {

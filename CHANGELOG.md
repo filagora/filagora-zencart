@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-04
+
 - **`bug_reports` leaves the profile** for its own optional package, `filagora-forum-bugreports`. The migration keeps its file name, so a database that has run it does not run it again.
 
 ## [0.7.0] - 2026-11-04

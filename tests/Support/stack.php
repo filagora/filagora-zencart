@@ -23,6 +23,8 @@ const STACK_FORUMS_MIGRATIONS = [
     '2026_10_16_000000_create_filagora_read_tracking_tables',
     '2026_10_16_100000_create_filagora_mention_table',
     '2026_10_16_200000_create_filagora_attachment_table',
+    '2026_11_04_000000_add_noindex_to_forums_table',
+    '2026_11_04_100000_create_filagora_forum_subscription_table',
 ];
 const STACK_ATTACHMENT_MIGRATION = '2026_10_16_200000_create_filagora_attachment_table';
 const STACK_MESSAGES_MIGRATION = '2026_10_15_000000_create_filagora_message_tables';

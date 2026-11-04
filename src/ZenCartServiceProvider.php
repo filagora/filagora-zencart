@@ -125,12 +125,16 @@ class ZenCartServiceProvider extends ServiceProvider
             PackageSchema::fromFile('zencart', __DIR__.'/../database/schema.php', __DIR__.'/../database/migrations/zc-versions'),
         );
 
+        $this->app->make(SchemaRegistry::class)->register(
+            PackageSchema::fromFile('zencart-site', __DIR__.'/../database/schema-site.php', __DIR__.'/../database/migrations/site'),
+        );
+
         $this->joinNotifications();
         $this->joinPlugins();
         $this->registerVersionCheck();
         $this->syncVersionCheckCache();
 
-        $this->loadMigrationsFrom([__DIR__.'/../database/migrations', __DIR__.'/../database/migrations/cms', __DIR__.'/../database/migrations/messages', __DIR__.'/../database/migrations/plugins', __DIR__.'/../database/migrations/zc-versions']);
+        $this->loadMigrationsFrom([__DIR__.'/../database/migrations', __DIR__.'/../database/migrations/cms', __DIR__.'/../database/migrations/messages', __DIR__.'/../database/migrations/plugins', __DIR__.'/../database/migrations/zc-versions', __DIR__.'/../database/migrations/site']);
 
         if ($this->app->runningInConsole()) {
             $this->commands([StampManifestIdsCommand::class, PushAllCommand::class]);

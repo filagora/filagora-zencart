@@ -9,6 +9,7 @@ Guidance for AI coding agents working in `filagora-zencart`. `CLAUDE.md` imports
 ## What it contains
 
 - **Schema extensions** (`database/extensions`) declaring the site's extra columns/indexes exactly, so `filagora:adopt` accepts the live tables and still reports anything undeclared; migrations create the same columns for fresh dev/test databases and are recorded as run on adoption.
+- **Every table no package owns** (`database/migrations/site`, snapshot `database/schema-site.php`, module `zencart-site`), including `users` and Laravel's own tables: the site has no migrations. The snapshot is taken from the live structure, not from the migrations, and a test holds the two together. These use `Tables::name()` like everything else, but the site's prefix is empty; in this package's tests they sit under the prefix, beside the test `users` table.
 - **Model subclasses** swapped in via `filagora.models` (`Models/`).
 - **Rule bindings** to the packages' extension points (super-user check, paid access, content moderation policy, post signature resolver, and similar).
 - **Ability map** in `config/filagora-zencart.php`, turning `filagora.*` staff abilities into `operator.*` entitlement keys.

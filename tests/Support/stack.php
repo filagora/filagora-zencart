@@ -23,6 +23,8 @@ const STACK_FORUMS_MIGRATIONS = [
     '2026_10_16_000000_create_filagora_read_tracking_tables',
     '2026_10_16_100000_create_filagora_mention_table',
     '2026_10_16_200000_create_filagora_attachment_table',
+    '2026_11_04_000000_add_noindex_to_forums_table',
+    '2026_11_04_100000_create_filagora_forum_subscription_table',
 ];
 const STACK_ATTACHMENT_MIGRATION = '2026_10_16_200000_create_filagora_attachment_table';
 const STACK_MESSAGES_MIGRATION = '2026_10_15_000000_create_filagora_message_tables';
@@ -38,6 +40,7 @@ const STACK_FORUMS_PROFILE = [
     '2026_10_16_400000_add_zencart_columns_to_attachment_table',
 ];
 const STACK_MESSAGES_PROFILE = '2026_10_15_400000_add_zencart_columns_to_message_tables';
+const STACK_BUG_REPORTS_MIGRATION = '2026_10_26_100000_create_bug_reports_table';
 
 function stackForumsMigration(string $name): object
 {
@@ -70,10 +73,11 @@ function stackPluginsMigration(string $name): object
 
 function stackProfileMigration(string $name): object
 {
-    $dir = match ($name) {
-        STACK_MESSAGES_PROFILE => 'messages/',
-        STACK_PLUGINS_PROFILE => 'plugins/',
-        STACK_ZC_VERSIONS_MIGRATION => 'zc-versions/',
+    $dir = match (true) {
+        $name === STACK_BUG_REPORTS_MIGRATION => 'site/',
+        $name === STACK_MESSAGES_PROFILE => 'messages/',
+        $name === STACK_PLUGINS_PROFILE => 'plugins/',
+        $name === STACK_ZC_VERSIONS_MIGRATION => 'zc-versions/',
         default => '',
     };
 
@@ -87,7 +91,7 @@ function stackProfileMigration(string $name): object
  */
 function stackMigrationNames(bool $withProfile = true): array
 {
-    return [...STACK_FORUMS_MIGRATIONS, STACK_MESSAGES_MIGRATION, STACK_IGNORED_MIGRATION, STACK_PLUGINS_MIGRATION, STACK_PLUGINS_THREAD_MIGRATION, STACK_MESSAGES_LINK_MIGRATION, ...($withProfile ? [...STACK_FORUMS_PROFILE, STACK_MESSAGES_PROFILE, STACK_PLUGINS_PROFILE, STACK_ZC_VERSIONS_MIGRATION] : [])];
+    return [...STACK_FORUMS_MIGRATIONS, STACK_MESSAGES_MIGRATION, STACK_IGNORED_MIGRATION, STACK_PLUGINS_MIGRATION, STACK_PLUGINS_THREAD_MIGRATION, STACK_MESSAGES_LINK_MIGRATION, ...($withProfile ? [...STACK_FORUMS_PROFILE, STACK_MESSAGES_PROFILE, STACK_PLUGINS_PROFILE, STACK_ZC_VERSIONS_MIGRATION, STACK_BUG_REPORTS_MIGRATION] : [])];
 }
 
 /**
@@ -96,6 +100,7 @@ function stackMigrationNames(bool $withProfile = true): array
  */
 function stackDown(): void
 {
+    stackProfileMigration(STACK_BUG_REPORTS_MIGRATION)->down();
     stackProfileMigration(STACK_ZC_VERSIONS_MIGRATION)->down();
     stackPluginsMigration(STACK_PLUGINS_MIGRATION)->down();
     stackForumsMigration(STACK_ATTACHMENT_MIGRATION)->down();
@@ -123,7 +128,7 @@ function stackUp(bool $withProfile = true): void
     AttachmentLinks::install();
 
     if ($withProfile) {
-        foreach ([...STACK_FORUMS_PROFILE, STACK_MESSAGES_PROFILE, STACK_PLUGINS_PROFILE, STACK_ZC_VERSIONS_MIGRATION] as $name) {
+        foreach ([...STACK_FORUMS_PROFILE, STACK_MESSAGES_PROFILE, STACK_PLUGINS_PROFILE, STACK_ZC_VERSIONS_MIGRATION, STACK_BUG_REPORTS_MIGRATION] as $name) {
             stackProfileMigration($name)->up();
         }
     }

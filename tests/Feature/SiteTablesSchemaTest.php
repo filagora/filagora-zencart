@@ -26,7 +26,7 @@ it('owns every table the site used to create', function () {
         'users', 'sessions', 'password_reset_tokens', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs',
         'notifications', 'personal_access_tokens', 'newsletter_subscribers', 'newsletters', 'newsletter_sends',
         'newsletter_events', 'newsletter_blocks', 'newsletter_link_clicks', 'webhook_events', 'queue_monitors',
-        'registration_email_send_counters', 'bug_reports', 'legacy_import_user_maps', 'contacts', 'roles', 'model_has_roles',
+        'registration_email_send_counters', 'legacy_import_user_maps', 'contacts', 'roles', 'model_has_roles',
     ]);
 });
 

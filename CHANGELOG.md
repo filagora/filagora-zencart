@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+- **`bug_reports` leaves the profile** for its own optional package, `filagora-forum-bugreports`. The migration keeps its file name, so a database that has run it does not run it again.
+
 ## [0.7.0] - 2026-11-04
 
 - **Every table the site used to create.** The 12 migrations in `filagora-zencart-site` move here, as a module of their own (`zencart-site`) with a snapshot taken from the live structure: `users` and its session and reset tables, Laravel's cache, queue and notification tables, Sanctum's tokens, the newsletters, the webhook guard, the queue monitor, bug reports, contacts, the import map, the registration counter and the roles tables. `filagora:adopt` now compares all of them with the live tables, where before it never looked at them. They no longer skip a table that exists: adoption records them instead. The file names are kept, so a database that has run them does not run them again. A fresh build now matches the live shape for `jobs`, `failed_jobs`, `notifications` and two newsletter indexes. The models stay in the site for now.

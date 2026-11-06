@@ -5,6 +5,10 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **The Zen Cart code corpus for the AI chat**, with the documentation corpus: tables `code_chunks` and `code_chunk_locations` (module `zencart-ai`), `CodeChunker` and `CodeIngester`, `zencart:ingest-code`, the vector-only `code_chunks` index (filled only by that command), the version list and detector, and a retrieval source (priority 100, ahead of the documentation) with its prompt rules. Config `code` (`ZENCART_CODE_REPO_URL`, `ZENCART_CODE_PATH`, `AI_CODE_RETRIEVAL_ENABLED`, `AI_CODE_RETRIEVAL_TOP_K`). The old site's ingest of its own source (`--site`) is not ported.
+
 ## [0.9.0] - 2026-11-06
 
 ### Added

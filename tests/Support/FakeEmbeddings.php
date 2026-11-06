@@ -37,6 +37,11 @@ class FakeEmbeddings implements EmbeddingProvider
         return array_map(fn (string $text): array => $this->embed($text), $texts);
     }
 
+    public function batchesCount(): int
+    {
+        return count($this->batches);
+    }
+
     public function dimensions(): int
     {
         return 3;

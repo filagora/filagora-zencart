@@ -23,8 +23,8 @@
         "php": "^8.4"
     },
     "require-dev": {
-        "filagora/filagora-ai": "^0.1.1",
-        "filagora/filagora-search": "^0.2",
+        "filagora/filagora-ai": "^0.1.2",
+        "filagora/filagora-search": "^0.2.2",
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.0",
         "orchestra/testbench": "^11.0",

@@ -247,4 +247,30 @@ return [
         'base_url' => env('LEGACY_DOCS_URL'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Code corpus
+    |--------------------------------------------------------------------------
+    |
+    | The Zen Cart source `zencart:ingest-code` reads, for the AI chat's code knowledge. `tags` lists
+    | the versions: an entry is a release tag ('v2.2.2'), or `label => ref` for a moving branch
+    | ('v3.0-dev' => 'master'); the label is what the code is filed under and what a question is
+    | matched to, the ref is what git reads. `path` is an existing checkout, for one version only.
+    | `enabled` keeps the chat from searching the code until the index has been filled.
+    |
+    */
+    'code' => [
+        'enabled' => (bool) env('AI_CODE_RETRIEVAL_ENABLED', false),
+        'top_k' => (int) (env('AI_CODE_RETRIEVAL_TOP_K') ?: 4),
+        'repo_url' => env('ZENCART_CODE_REPO_URL') ?: 'https://github.com/zencart/zencart.git',
+        'path' => env('ZENCART_CODE_PATH'),
+        // The versions the live site indexes. The full list of final releases from 1.5.7 is
+        // 'v1.5.7', 'v1.5.7a'-'v1.5.7d', 'v1.5.8', 'v1.5.8a', 'v2.0.0', 'v2.0.1', 'v2.1.0', 'v2.2.1' and 'v2.2.2'
+        // (about 3.5 times the cost of one version); add them when that is wanted.
+        'tags' => [
+            'v2.0.0', 'v2.0.1', 'v2.1.0', 'v2.2.1', 'v2.2.2',
+            'v3.0-dev' => 'master',
+        ],
+    ],
+
 ];

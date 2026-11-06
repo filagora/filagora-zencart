@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Filagora\ZenCart;
 
 use Filagora\Ai\Retrieval\RetrievalSources;
+use Filagora\Ai\Services\GroundingPrompt;
 use Filagora\Cms\BlockTypes\BlockTypeRegistry;
 use Filagora\Cms\Navigation\NavigationLinkTypes;
 use Filagora\Compliance\Contracts\UserAnonymizer;
@@ -32,7 +33,10 @@ use Filagora\Plugins\Release\ReleaseExtensions;
 use Filagora\Plugins\Support\Models;
 use Filagora\Search\Support\SearchIndexRegistry;
 use Filagora\ZenCart\Ai\Console\DocsImportCommand;
+use Filagora\ZenCart\Ai\Console\IngestCodeCommand;
+use Filagora\ZenCart\Ai\Retrieval\CodeRetrievalSource;
 use Filagora\ZenCart\Ai\Retrieval\DocsRetrievalSource;
+use Filagora\ZenCart\Ai\Search\CodeChunkIndex;
 use Filagora\ZenCart\Ai\Search\DocPageIndex;
 use Filagora\ZenCart\CacheSync\PushAllCommand;
 use Filagora\ZenCart\CacheSync\SyncObserver;
@@ -146,7 +150,7 @@ class ZenCartServiceProvider extends ServiceProvider
             $this->commands([StampManifestIdsCommand::class, PushAllCommand::class]);
 
             if (self::aiInstalled()) {
-                $this->commands([DocsImportCommand::class]);
+                $this->commands([DocsImportCommand::class, IngestCodeCommand::class]);
             }
 
             $this->publishes([
@@ -182,7 +186,12 @@ class ZenCartServiceProvider extends ServiceProvider
 
         if (class_exists(SearchIndexRegistry::class) && $this->app->bound(SearchIndexRegistry::class)) {
             $this->app->make(SearchIndexRegistry::class)->register($this->app->make(DocPageIndex::class));
+            $this->app->make(SearchIndexRegistry::class)->register(new CodeChunkIndex);
+
+            // Code first, then documentation: they say how Zen Cart works, where a forum thread is one member's experience of it.
+            $this->app->make(RetrievalSources::class)->register($this->app->make(CodeRetrievalSource::class), 100);
             $this->app->make(RetrievalSources::class)->register($this->app->make(DocsRetrievalSource::class), 200);
+            $this->app->make(GroundingPrompt::class)->addRules(CodeRetrievalSource::RULES);
         }
     }
 

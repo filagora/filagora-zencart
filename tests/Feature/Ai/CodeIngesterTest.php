@@ -181,9 +181,9 @@ class CodeIngesterTest extends TestCase
         $ingester = app(CodeIngester::class);
 
         $ingester->ingestVersion('zencart', 'v2.0.0', $checkout);
-        $ingester->ingestVersion('lara-forum', 'v2.0.0', $checkout);
+        $ingester->ingestVersion('other-repo', 'v2.0.0', $checkout);
         // Re-ingesting one repo's version must not touch the other's.
-        $ingester->ingestVersion('lara-forum', 'v2.0.0', $this->checkout(['b.php' => '<?php // nothing']));
+        $ingester->ingestVersion('other-repo', 'v2.0.0', $this->checkout(['b.php' => '<?php // nothing']));
 
         $this->assertSame(['zencart'], CodeChunk::query()->pluck('repo')->all());
         $this->assertSame(['v2.0.0'], CodeChunk::query()->firstOrFail()->versions);

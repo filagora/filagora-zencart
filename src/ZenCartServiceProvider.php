@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Filagora\ZenCart;
 
+use Filagora\Ai\Retrieval\RetrievalSources;
 use Filagora\Cms\BlockTypes\BlockTypeRegistry;
 use Filagora\Cms\Navigation\NavigationLinkTypes;
 use Filagora\Compliance\Contracts\UserAnonymizer;
@@ -29,6 +30,10 @@ use Filagora\Plugins\Events\ReleasePublished;
 use Filagora\Plugins\Filament\ReleaseScreens;
 use Filagora\Plugins\Release\ReleaseExtensions;
 use Filagora\Plugins\Support\Models;
+use Filagora\Search\Support\SearchIndexRegistry;
+use Filagora\ZenCart\Ai\Console\DocsImportCommand;
+use Filagora\ZenCart\Ai\Retrieval\DocsRetrievalSource;
+use Filagora\ZenCart\Ai\Search\DocPageIndex;
 use Filagora\ZenCart\CacheSync\PushAllCommand;
 use Filagora\ZenCart\CacheSync\SyncObserver;
 use Filagora\ZenCart\Cms\MembershipRule;
@@ -131,6 +136,7 @@ class ZenCartServiceProvider extends ServiceProvider
 
         $this->joinNotifications();
         $this->joinPlugins();
+        $this->joinAi();
         $this->registerVersionCheck();
         $this->syncVersionCheckCache();
 
@@ -139,9 +145,44 @@ class ZenCartServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([StampManifestIdsCommand::class, PushAllCommand::class]);
 
+            if (self::aiInstalled()) {
+                $this->commands([DocsImportCommand::class]);
+            }
+
             $this->publishes([
                 __DIR__.'/../config/filagora-zencart.php' => config_path('filagora-zencart.php'),
             ], 'filagora-zencart-config');
+        }
+    }
+
+    /**
+     * Whether `filagora-ai` is installed. The Zen Cart corpora the chat answers from (documentation,
+     * code) and their tables are set up only then.
+     */
+    public static function aiInstalled(): bool
+    {
+        return class_exists(RetrievalSources::class);
+    }
+
+    /**
+     * The corpora: their tables, their search indexes (with `filagora-search` installed) and the
+     * places the chat looks in them.
+     */
+    private function joinAi(): void
+    {
+        if (! self::aiInstalled()) {
+            return;
+        }
+
+        $this->app->make(SchemaRegistry::class)->register(
+            PackageSchema::fromFile('zencart-ai', __DIR__.'/../database/schema-ai.php', __DIR__.'/../database/migrations/ai'),
+        );
+
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations/ai');
+
+        if (class_exists(SearchIndexRegistry::class) && $this->app->bound(SearchIndexRegistry::class)) {
+            $this->app->make(SearchIndexRegistry::class)->register($this->app->make(DocPageIndex::class));
+            $this->app->make(RetrievalSources::class)->register($this->app->make(DocsRetrievalSource::class), 200);
         }
     }
 

@@ -6,6 +6,7 @@ namespace Filagora\ZenCart\Tests;
 
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
+use Filagora\Ai\AiServiceProvider;
 use Filagora\Cms\CmsServiceProvider;
 use Filagora\Compliance\ComplianceServiceProvider;
 use Filagora\Core\CoreServiceProvider;
@@ -15,6 +16,7 @@ use Filagora\Memberships\MembershipsServiceProvider;
 use Filagora\Messages\MessagesServiceProvider;
 use Filagora\Notifications\NotificationsServiceProvider as FilagoraNotificationsServiceProvider;
 use Filagora\Plugins\PluginsServiceProvider;
+use Filagora\Search\SearchServiceProvider;
 use Filagora\ZenCart\Tests\Support\TestSupportServiceProvider;
 use Filagora\ZenCart\Tests\Support\TestUser;
 use Filagora\ZenCart\ZenCartServiceProvider;
@@ -56,6 +58,8 @@ abstract class TestCase extends Orchestra
             MembershipsServiceProvider::class,
             FilagoraNotificationsServiceProvider::class,
             PluginsServiceProvider::class,
+            SearchServiceProvider::class,
+            AiServiceProvider::class,
             ZenCartServiceProvider::class,
             TestSupportServiceProvider::class,
         ];

@@ -23,6 +23,8 @@
         "php": "^8.4"
     },
     "require-dev": {
+        "filagora/filagora-ai": "^0.1.1",
+        "filagora/filagora-search": "^0.2",
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.0",
         "orchestra/testbench": "^11.0",
@@ -58,5 +60,9 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "suggest": {
+        "filagora/filagora-ai": "Adds the AI chat's Zen Cart corpora: the documentation import, its search index and its retrieval source.",
+        "filagora/filagora-search": "Indexes the documentation corpus for the search page and the AI chat."
+    }
 }

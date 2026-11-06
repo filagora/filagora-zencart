@@ -91,13 +91,13 @@ it('pushes nothing for a plugin carts do not know by a library id, or when switc
     Queue::fake();
 
     $plugin->update(['name' => 'Renamed']);
-    Queue::assertNothingPushed();
+    Queue::assertNotPushed(PushVersioncheckCache::class);
 
     config(['filagora-zencart.cache_sync.enabled' => false]);
     $plugin->update(['legacy_vbulletin_file_id' => 2431]);
     $plugin->update(['name' => 'Again']);
 
-    Queue::assertNothingPushed();
+    Queue::assertNotPushed(PushVersioncheckCache::class);
 });
 
 it('re-pushes every library plugin, or the ones named', function () {

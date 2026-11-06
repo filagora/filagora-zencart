@@ -237,14 +237,14 @@ return [
     |
     | Where `docs:import` reads the Zen Cart documentation from: a local checkout (`path`), else a
     | fresh clone of `repo_url` at `ref`. `base_url` is where the imported pages are published, for
-    | the links the chat cites. Only used with `filagora-ai` installed.
+    | the links the chat cites (set it: there is no default). Only used with `filagora-ai` installed.
     |
     */
     'docs' => [
         'path' => env('ZENCART_DOCS_PATH'),
         'repo_url' => env('ZENCART_DOCS_REPO_URL') ?: 'https://github.com/zencart/documentation.git',
         'ref' => env('ZENCART_DOCS_REF') ?: 'master',
-        'base_url' => env('LEGACY_DOCS_URL') ?: 'https://docs.zen-cart.com',
+        'base_url' => env('LEGACY_DOCS_URL'),
     ],
 
 ];

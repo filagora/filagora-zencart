@@ -11,7 +11,7 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Imports pages from the docs.zen-cart.com Hugo site's content/user and
+ * Imports pages from the documentation site's content/user and
  * content/dev folders into the doc_pages table. This only populates the
  * table; it deliberately does not index or embed anything itself (model
  * events are off during the upsert loop below) - run

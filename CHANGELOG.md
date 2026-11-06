@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-06
+
 ### Added
 
 - **Plugin release vectors for the AI chat**: the vector-only index `plugin_release_vectors` and a retrieval source (priority 400, after code, documentation and forum threads) offering the plugin's page, linked by the host's plugin route, with the changelog or the plugin's description as the excerpt.

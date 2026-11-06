@@ -64,6 +64,8 @@ under `user_attributes`).
 
   The Zen Cart source, the same way: tables `code_chunks` and `code_chunk_locations` (one row per unique piece of code, listing the versions that hold it), `php artisan zencart:ingest-code` (reads each configured tag, `filagora-zencart.code.tags`; then embeds what is new and updates the version lists of chunks already indexed, through `filagora-ai`'s `VectorBackfill`, so it stops before spending more if the provider or the search engine fails), a vector-only index `code_chunks` filled only by that command, a version detector ("Zen Cart 1.5.8a", "v2.0.1", "ZC158"; the latest release is assumed, and the answer says so, when a question names none) and a retrieval source that offers the code from the version asked about. Off until `AI_CODE_RETRIEVAL_ENABLED=true`.
 
+  Plugin releases, so the chat can find a plugin by what it does: a vector-only index `plugin_release_vectors` (the live releases of live plugins, kept apart from the keyword index; indexed as releases are saved while embeddings are on; fill it with `php artisan filagora:search:reindex --index=plugin_release_vectors --sync-settings`) and a retrieval source that offers the plugin's page with the changelog as the excerpt.
+
 ## Install
 
 ```bash

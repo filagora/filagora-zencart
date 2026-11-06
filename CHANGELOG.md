@@ -7,6 +7,10 @@ All notable changes to this package are documented here. The format follows
 
 ### Added
 
+- **Plugin release vectors for the AI chat**: the vector-only index `plugin_release_vectors` and a retrieval source (priority 400, after code, documentation and forum threads) offering the plugin's page, linked by the host's plugin route, with the changelog or the plugin's description as the excerpt.
+
+### Added
+
 - **The Zen Cart code corpus for the AI chat**, with the documentation corpus: tables `code_chunks` and `code_chunk_locations` (module `zencart-ai`), `CodeChunker` and `CodeIngester`, `zencart:ingest-code`, the vector-only `code_chunks` index (filled only by that command), the version list and detector, and a retrieval source (priority 100, ahead of the documentation) with its prompt rules. Config `code` (`ZENCART_CODE_REPO_URL`, `ZENCART_CODE_PATH`, `AI_CODE_RETRIEVAL_ENABLED`, `AI_CODE_RETRIEVAL_TOP_K`). The old site's ingest of its own source (`--site`) is not ported.
 
 ## [0.9.0] - 2026-11-06

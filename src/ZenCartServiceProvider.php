@@ -36,8 +36,10 @@ use Filagora\ZenCart\Ai\Console\DocsImportCommand;
 use Filagora\ZenCart\Ai\Console\IngestCodeCommand;
 use Filagora\ZenCart\Ai\Retrieval\CodeRetrievalSource;
 use Filagora\ZenCart\Ai\Retrieval\DocsRetrievalSource;
+use Filagora\ZenCart\Ai\Retrieval\PluginsRetrievalSource;
 use Filagora\ZenCart\Ai\Search\CodeChunkIndex;
 use Filagora\ZenCart\Ai\Search\DocPageIndex;
+use Filagora\ZenCart\Ai\Search\PluginReleaseVectorIndex;
 use Filagora\ZenCart\CacheSync\PushAllCommand;
 use Filagora\ZenCart\CacheSync\SyncObserver;
 use Filagora\ZenCart\Cms\MembershipRule;
@@ -187,10 +189,12 @@ class ZenCartServiceProvider extends ServiceProvider
         if (class_exists(SearchIndexRegistry::class) && $this->app->bound(SearchIndexRegistry::class)) {
             $this->app->make(SearchIndexRegistry::class)->register($this->app->make(DocPageIndex::class));
             $this->app->make(SearchIndexRegistry::class)->register(new CodeChunkIndex);
+            $this->app->make(SearchIndexRegistry::class)->register(new PluginReleaseVectorIndex);
 
             // Code first, then documentation: they say how Zen Cart works, where a forum thread is one member's experience of it.
             $this->app->make(RetrievalSources::class)->register($this->app->make(CodeRetrievalSource::class), 100);
             $this->app->make(RetrievalSources::class)->register($this->app->make(DocsRetrievalSource::class), 200);
+            $this->app->make(RetrievalSources::class)->register($this->app->make(PluginsRetrievalSource::class), 400);
             $this->app->make(GroundingPrompt::class)->addRules(CodeRetrievalSource::RULES);
         }
     }

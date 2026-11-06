@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-06
+
 ### Added
 
 - **The documentation corpus for the AI chat**, set up only when `filagora-ai` and `filagora-search` are installed: table `doc_pages` (module `zencart-ai`, migration and adoption snapshot), the `DocPage` model, `docs:import`, the `doc_pages` search index (keyword fields for the search page; vectors while embeddings are on, embedded a chunk at a time) and a retrieval source for the chat. Config `docs` (`ZENCART_DOCS_PATH`, `ZENCART_DOCS_REPO_URL`, `ZENCART_DOCS_REF`, `LEGACY_DOCS_URL`).

@@ -62,6 +62,8 @@ under `user_attributes`).
 - **Staff screens.** `FilagoraZenCartPlugin` (register it on the panel beside the plugins package's plugin) adds the Zen Cart versions list, and the release list gets encapsulated and Zen Cart version columns and filters.
 - **The Zen Cart corpora for the AI chat** (only with `filagora-ai` and `filagora-search` installed). The documentation: table `doc_pages` (its own module, `zencart-ai`, with an adoption snapshot), `php artisan docs:import` (a local checkout from `ZENCART_DOCS_PATH`, else a fresh clone of `ZENCART_DOCS_REPO_URL` at `ZENCART_DOCS_REF`), a search index `doc_pages` (words for the search page, vectors for the chat while embeddings are on; embedded a chunk at a time) and a chat retrieval source that offers the pages closest in meaning, linked to `LEGACY_DOCS_URL`. After an import run `php artisan filagora:search:reindex --index=doc_pages --sync-settings`.
 
+  The Zen Cart source, the same way: tables `code_chunks` and `code_chunk_locations` (one row per unique piece of code, listing the versions that hold it), `php artisan zencart:ingest-code` (reads each configured tag, `filagora-zencart.code.tags`; then embeds what is new and updates the version lists of chunks already indexed, through `filagora-ai`'s `VectorBackfill`, so it stops before spending more if the provider or the search engine fails), a vector-only index `code_chunks` filled only by that command, a version detector ("Zen Cart 1.5.8a", "v2.0.1", "ZC158"; the latest release is assumed, and the answer says so, when a question names none) and a retrieval source that offers the code from the version asked about. Off until `AI_CODE_RETRIEVAL_ENABLED=true`.
+
 ## Install
 
 ```bash

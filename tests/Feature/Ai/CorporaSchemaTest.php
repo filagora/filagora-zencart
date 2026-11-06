@@ -8,17 +8,17 @@ use Filagora\Core\Schema\SchemaRegistry;
 use Filagora\Core\Schema\TableShape;
 use Illuminate\Support\Facades\DB;
 
-it('owns the documentation table', function () {
-    expect(array_keys(app(SchemaRegistry::class)->get('zencart-ai')->tables))->toBe(['doc_pages']);
+it('owns the documentation and code corpus tables', function () {
+    expect(array_keys(app(SchemaRegistry::class)->get('zencart-ai')->tables))->toBe(['doc_pages', 'code_chunks', 'code_chunk_locations']);
 });
 
-it('builds the table exactly as the snapshot of the live one has it', function () {
+it('builds the tables exactly as the snapshot of the live one has it', function () {
     foreach (app(SchemaRegistry::class)->get('zencart-ai')->tables as $base => $expected) {
         expect(TableShape::inspect($base)->differencesFrom($expected, compareColumnOrder: true))->toBe([], $base);
     }
 });
 
-it('adopts the table by recording its migration', function () {
+it('adopts the tables by recording its migration', function () {
     $schema = app(SchemaRegistry::class)->get('zencart-ai');
     DB::table('migrations')->whereIn('migration', $schema->migrationNames())->delete();
 

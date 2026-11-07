@@ -12,6 +12,7 @@ use Filagora\Search\Search;
 use Filagora\Search\Support\SearchQuery;
 use Filagora\ZenCart\Ai\Models\DocPage;
 use Filagora\ZenCart\Ai\Search\DocPageIndex;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Str;
 
 /**
@@ -22,7 +23,11 @@ final class DocsRetrievalSource implements RetrievalSource
 {
     private const EXCERPT_LENGTH = 500;
 
-    public function __construct(private readonly Search $search) {}
+    /**
+     * The search is resolved when the source is asked, not when it is registered: it is registered while
+     * the application boots, which is too early to build anything that reads settings.
+     */
+    public function __construct(private readonly Container $container) {}
 
     public function key(): string
     {
@@ -36,7 +41,7 @@ final class DocsRetrievalSource implements RetrievalSource
         }
 
         $limit = $query->limitFor($this->key(), ChatRetrieval::defaultLimit());
-        $ids = array_map('intval', $this->search->search(DocPageIndex::NAME, new SearchQuery(vector: $query->vector, perPage: $limit))->ids());
+        $ids = array_map('intval', $this->container->make(Search::class)->search(DocPageIndex::NAME, new SearchQuery(vector: $query->vector, perPage: $limit))->ids());
 
         if ($ids === []) {
             return [];

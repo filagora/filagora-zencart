@@ -15,6 +15,7 @@ use Filagora\ZenCart\Ai\Code\ZenCartVersions;
 use Filagora\ZenCart\Ai\Models\CodeChunk;
 use Filagora\ZenCart\Ai\Models\CodeChunkLocation;
 use Filagora\ZenCart\Ai\Search\CodeChunkIndex;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Str;
 
 /**
@@ -41,11 +42,11 @@ final class CodeRetrievalSource implements RetrievalSource
         is not in the excerpts or that you are not certain exists.
         RULES;
 
-    public function __construct(
-        private readonly Search $search,
-        private readonly ZenCartVersionDetector $detector,
-        private readonly ZenCartVersions $versions,
-    ) {}
+    /**
+     * Its collaborators are resolved when it is asked, not when it is registered: it is registered while
+     * the application boots, which is too early to build anything that reads settings.
+     */
+    public function __construct(private readonly Container $container) {}
 
     public static function enabled(): bool
     {
@@ -63,14 +64,15 @@ final class CodeRetrievalSource implements RetrievalSource
             return [];
         }
 
-        $selection = $this->detector->detect($query->message, (string) $query->versionHint) ?? $this->detector->assumed();
+        $detector = $this->container->make(ZenCartVersionDetector::class);
+        $selection = $detector->detect($query->message, (string) $query->versionHint) ?? $detector->assumed();
 
         if ($selection === null) {
             return [];
         }
 
         $limit = $query->limitFor($this->key(), max(1, (int) config('filagora-zencart.code.top_k', 4)));
-        $ids = array_map('intval', $this->search->search(CodeChunkIndex::NAME, new SearchQuery(filter: $selection->filter(), vector: $query->vector, perPage: $limit))->ids());
+        $ids = array_map('intval', $this->container->make(Search::class)->search(CodeChunkIndex::NAME, new SearchQuery(filter: $selection->filter(), vector: $query->vector, perPage: $limit))->ids());
 
         return $ids === [] ? [] : $this->items($ids, $selection);
     }
@@ -81,6 +83,7 @@ final class CodeRetrievalSource implements RetrievalSource
      */
     private function items(array $ids, CodeVersionSelection $selection): array
     {
+        $versions = $this->container->make(ZenCartVersions::class);
         $chunks = CodeChunk::query()->whereIn('id', $ids)->get()->keyBy('id');
         $locations = CodeChunkLocation::query()
             ->whereIn('code_chunk_id', $ids)
@@ -109,7 +112,7 @@ final class CodeRetrievalSource implements RetrievalSource
                 'label' => 'CODE',
                 'id' => $chunk->id,
                 'title' => "{$location->path}:{$lines} @ {$location->version}",
-                'url' => $this->versions->blobUrl($location->version, $location->path, $location->start_line, $location->end_line),
+                'url' => $versions->blobUrl($location->version, $location->path, $location->start_line, $location->end_line),
                 'excerpt' => Str::limit($chunk->body, self::EXCERPT_LENGTH),
                 'version' => $location->version,
                 'version_assumed' => $selection->assumed,

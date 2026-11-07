@@ -5,6 +5,12 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-11-07
+
+### Fixed
+
+- The chat's code, documentation and plugin sources no longer build the search or the version list while the application boots: they take what they need when they are asked. A source in another package that built the forum access rules at boot broke a host's staff preview; these were not affected, but built too early all the same.
+
 ## [0.10.0] - 2026-11-06
 
 ### Added

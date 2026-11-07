@@ -148,7 +148,7 @@ class ZenCartServiceProvider extends ServiceProvider
         $this->registerVersionCheck();
         $this->syncVersionCheckCache();
 
-        $this->loadMigrationsFrom([__DIR__.'/../database/migrations', __DIR__.'/../database/migrations/cms', __DIR__.'/../database/migrations/messages', __DIR__.'/../database/migrations/plugins', __DIR__.'/../database/migrations/zc-versions', __DIR__.'/../database/migrations/site', __DIR__.'/../database/migrations/navigation']);
+        $this->loadMigrationsFrom([__DIR__.'/../database/migrations', __DIR__.'/../database/migrations/cms', __DIR__.'/../database/migrations/messages', __DIR__.'/../database/migrations/plugins', __DIR__.'/../database/migrations/zc-versions', __DIR__.'/../database/migrations/site', __DIR__.'/../database/migrations/content']);
 
         if ($this->app->runningInConsole()) {
             $this->commands([StampManifestIdsCommand::class, PushAllCommand::class]);

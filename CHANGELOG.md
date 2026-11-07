@@ -5,6 +5,16 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-07
+
+### Added
+
+- **A site's pages and pictures, from a directory it keeps.** The `create_site_content` migration creates the pages in `filagora-zencart.content.path` (`pages.php`), with their live blocks, and the pictures they show (`media.php`, files under `media/`, copied to the `public` disk and recorded in the media library), so a new site starts with its real pages. Only ever creates: a page that exists (by slug or by route) is left exactly as it is, a picture already on the disk is not overwritten, and rolling back removes nothing. `content.placeholders` fills `{name}` placeholders in the content; one with no value makes a link to it `#` and a `mailto:` link plain text. The content itself lives in the site, not here.
+
+### Changed
+
+- The menus migration moved to `database/migrations/content` (its name, and so its place in the migrations table, is unchanged).
+
 ## [0.12.0] - 2026-11-07
 
 ### Added

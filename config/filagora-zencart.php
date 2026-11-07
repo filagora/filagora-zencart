@@ -100,6 +100,10 @@ return [
         'filagora-plugins-security.gates' => [
             'filagora.plugins.security' => 'operator.plugin.moderate',
         ],
+        'filagora-ai.gates' => [
+            'filagora.ai.chat' => 'ai_chat.access',
+            'filagora.ai.view-usage' => 'operator.audit.view',
+        ],
         'filagora-notifications.gates' => [
             'filagora.notifications.view' => 'operator.users.update',
         ],

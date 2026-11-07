@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Filagora\ZenCart;
 
+use Filagora\Ai\Contracts\BillingAnchor;
 use Filagora\Ai\Retrieval\RetrievalSources;
 use Filagora\Ai\Services\GroundingPrompt;
 use Filagora\Cms\BlockTypes\BlockTypeRegistry;
@@ -40,6 +41,7 @@ use Filagora\ZenCart\Ai\Retrieval\PluginsRetrievalSource;
 use Filagora\ZenCart\Ai\Search\CodeChunkIndex;
 use Filagora\ZenCart\Ai\Search\DocPageIndex;
 use Filagora\ZenCart\Ai\Search\PluginReleaseVectorIndex;
+use Filagora\ZenCart\Ai\Usage\MembershipBillingAnchor;
 use Filagora\ZenCart\CacheSync\PushAllCommand;
 use Filagora\ZenCart\CacheSync\SyncObserver;
 use Filagora\ZenCart\Cms\MembershipRule;
@@ -179,6 +181,8 @@ class ZenCartServiceProvider extends ServiceProvider
         if (! self::aiInstalled()) {
             return;
         }
+
+        $this->app->bind(BillingAnchor::class, MembershipBillingAnchor::class);
 
         $this->app->make(SchemaRegistry::class)->register(
             PackageSchema::fromFile('zencart-ai', __DIR__.'/../database/schema-ai.php', __DIR__.'/../database/migrations/ai'),

@@ -5,6 +5,12 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-07
+
+### Added
+
+- **The AI usage meter's billing date and the usage screen's permission.** With `filagora-ai` 0.1.3, a member's monthly window is counted from their membership's billing date (`MembershipBillingAnchor`: of several memberships, the plan that grants the AI access sets the date; none, such as staff, means the calendar month). The usage screen's ability `filagora.ai.view-usage` maps to `operator.audit.view` and the chat's to `ai_chat.access` under `gates`.
+
 ## [0.10.1] - 2026-11-07
 
 ### Fixed

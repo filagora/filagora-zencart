@@ -277,4 +277,18 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Site content
+    |--------------------------------------------------------------------------
+    |
+    | A directory of pages and pictures (see the `create_site_content` migration) that a new site is
+    | created with, and the values for the `{name}` placeholders in them. Unset, nothing is created.
+    |
+    */
+    'content' => [
+        'path' => null,
+        'placeholders' => [],
+    ],
+
 ];

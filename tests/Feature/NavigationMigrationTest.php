@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Filagora\Core\Support\Tables;
 use Illuminate\Support\Facades\DB;
 
-const NAVIGATION_MIGRATION = __DIR__.'/../../database/migrations/navigation/2026_11_07_000000_create_zencart_navigation_menus.php';
+const NAVIGATION_MIGRATION = __DIR__.'/../../database/migrations/content/2026_11_07_000000_create_zencart_navigation_menus.php';
 
 function runNavigationMigration(): void
 {

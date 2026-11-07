@@ -24,7 +24,10 @@ final class MembershipBillingAnchor implements BillingAnchor
             ->get()
             ->filter(fn (UserMembership $membership): bool => $membership->isCurrentlyActive());
 
-        /** @var UserMembership|null $preferred */
+        if ($memberships->isEmpty()) {
+            return null;
+        }
+
         $preferred = $memberships->first(fn (UserMembership $membership): bool => array_intersect($preferEntitlements, $membership->plan?->entitlementList() ?? []) !== [])
             ?? $memberships->first();
 

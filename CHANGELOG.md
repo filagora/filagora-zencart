@@ -5,6 +5,10 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **The site's menus, as a migration.** `2026_11_07_000000_create_zencart_navigation_menus` creates the header, member (`user_menu`), forum bar (`forum_header`) and the two footer menus (`footer_useful`, `footer_legal`), and the two reusable footer blocks (`footer_github`, `footer_newsletter`), with the live site's content as of 7 Nov 2026, so a new site starts with them instead of an empty top menu. It only ever creates: a menu or block that exists is left exactly as it is, so the live database and any site whose staff have edited them are untouched, and rolling it back removes nothing. The links to the documentation are filled in from `docs.base_url` and left out when there is none. Items use the entitlement format (the old `roles` key is gone).
+
 ## [0.11.0] - 2026-11-07
 
 ### Added

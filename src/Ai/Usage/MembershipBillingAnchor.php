@@ -28,6 +28,6 @@ final class MembershipBillingAnchor implements BillingAnchor
         $preferred = $memberships->first(fn (UserMembership $membership): bool => array_intersect($preferEntitlements, $membership->plan?->entitlementList() ?? []) !== [])
             ?? $memberships->first();
 
-        return $preferred?->current_period_start ?? $preferred?->starts_at;
+        return $preferred->current_period_start ?? $preferred->starts_at;
     }
 }

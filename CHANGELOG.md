@@ -5,6 +5,12 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-11-08
+
+### Fixed
+
+- `docs:import` imported nothing in a site that did not happen to have `symfony/yaml`: the class was missing, the error was swallowed, and every page was reported as having no front matter. The package now requires `symfony/yaml`, and only a YAML parse error counts as "no front matter".
+
 ## [0.13.0] - 2026-11-07
 
 ### Added

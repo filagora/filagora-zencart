@@ -20,7 +20,8 @@
         "filagora/filagora-messages": "^0.3",
         "filagora/filagora-notifications": "^0.1",
         "filagora/filagora-plugins": "^0.3",
-        "php": "^8.4"
+        "php": "^8.4",
+        "symfony/yaml": "^8.1"
     },
     "require-dev": {
         "filagora/filagora-ai": "^0.1.3",

@@ -175,4 +175,16 @@ class DocsImportCommandTest extends TestCase
 
         rmdir($path);
     }
+
+    /**
+     * The importer parses front matter with Symfony YAML. Tests got the package through other
+     * dependencies, but a site that did not have it reported every page as having "no frontmatter"
+     * and imported nothing, so the package has to require it itself.
+     */
+    public function test_the_package_requires_the_yaml_parser_it_uses(): void
+    {
+        $composer = json_decode((string) file_get_contents(__DIR__.'/../../../composer.json'), true, flags: JSON_THROW_ON_ERROR);
+
+        $this->assertArrayHasKey('symfony/yaml', $composer['require']);
+    }
 }

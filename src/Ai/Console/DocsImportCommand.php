@@ -8,6 +8,7 @@ use Filagora\ZenCart\Ai\Models\DocPage;
 use Illuminate\Console\Command;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -260,7 +261,7 @@ class DocsImportCommand extends Command
 
         try {
             $frontMatter = Yaml::parse($matches[1]);
-        } catch (\Throwable) {
+        } catch (ParseException) {
             return null;
         }
 

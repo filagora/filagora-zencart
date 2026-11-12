@@ -20,6 +20,7 @@ class OperatorEntitlementSeeder extends Seeder
         'operator.dashboard.access' => 'Dashboard Access',
         'operator.queue_monitors.view' => 'Queue Monitors',
         'operator.forum.moderate' => 'Forum Moderation',
+        'operator.forum.moderate_frontend' => 'Forum Moderation (Frontend only, no dashboard forum screens)',
         'operator.forum.view_unapproved' => 'View Unapproved Forum Content',
         'operator.forum.bypass_approval' => 'Bypass Forum Approval',
         'operator.plugin.moderate' => 'Plugin Moderation',

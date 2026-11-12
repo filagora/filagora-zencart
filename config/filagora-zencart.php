@@ -63,6 +63,9 @@ return [
     |
     */
     'gates' => [
+        'filagora.gates' => [
+            'filagora.moderate_frontend' => 'operator.forum.moderate_frontend',
+        ],
         'filagora-forums.gates' => [
             'filagora.forums.moderate' => 'operator.forum.moderate',
             'filagora.forums.view_unapproved' => 'operator.forum.view_unapproved',

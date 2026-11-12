@@ -322,6 +322,22 @@ it('maps the forum and entitlement abilities onto operator keys', function () {
     ]);
 });
 
+it('maps the shared frontend moderation ability onto its operator key', function () {
+    expect(config('filagora.gates'))->toBe(['filagora.moderate_frontend' => 'operator.forum.moderate_frontend']);
+
+    $user = TestUser::make('Frontend moderator');
+    UserEntitlementGrant::create(['user_id' => $user->id, 'entitlement_key' => 'filagora.moderate_frontend', 'grant_type' => 'manual']);
+    expect(Gate::forUser($user)->allows('filagora.moderate_frontend'))->toBeFalse('the generic key no longer opens it');
+
+    UserEntitlementGrant::create(['user_id' => $user->id, 'entitlement_key' => 'operator.forum.moderate_frontend', 'grant_type' => 'manual']);
+    freshServices();
+
+    expect(Gate::forUser($user)->allows('filagora.moderate_frontend'))->toBeTrue()
+        ->and(app(ForumAccess::class)->canModerate($user))->toBeTrue()
+        ->and(app(ForumAccess::class)->isStaff($user))->toBeTrue()
+        ->and(Gate::forUser($user)->allows('filagora.forums.moderate'))->toBeFalse('it opens no forum screen');
+});
+
 it('maps the logs ability onto the audit key, whether or not the logs package is installed', function () {
     expect(config('filagora-logs.gates'))->toBe(['filagora.logs.view' => 'operator.audit.view']);
 });

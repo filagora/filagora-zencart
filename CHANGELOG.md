@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.13.2] - 2026-11-12
+
 ### Added
 
 - Core's shared `filagora.moderate_frontend` ability maps to `operator.forum.moderate_frontend` (moderation on the site's pages, no dashboard forum screens), and `OperatorEntitlementSeeder` seeds its definition and label. Needs `filagora-core` 0.2.3, `filagora-entitlements` 0.2.3 and `filagora-forums` 0.6.5.

@@ -30,8 +30,9 @@ worked example of a Filagora profile package.
 
 - **Maps the staff abilities to `operator.*` entitlement keys** (`filagora.forums.moderate` to
   `operator.forum.moderate`, `filagora.entitlements.manage` to `operator.entitlements.manage`,
-  `filagora.logs.view` to `operator.audit.view`, and so on), replacing the packages' `gates` config. The map lives in
-  `config/filagora-zencart.php`.
+  `filagora.logs.view` to `operator.audit.view`, and so on), replacing the packages' `gates` config. Core's
+  shared `filagora.moderate_frontend` maps to `operator.forum.moderate_frontend`: moderation on the
+  site's pages without the dashboard forum screens. The map lives in `config/filagora-zencart.php`.
 - **Extends the cms package**: declares `cms_pages.legacy_vbulletin_content_id` (unique) the same
   way; registers the site's twelve block types (`promo_hero`, `donation_hero`, `donation_method`,
   `services_hero`, `provider_grid`, `about_hero` and the `home_*` blocks) with their forms, and

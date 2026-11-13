@@ -12,6 +12,61 @@ worked example of a Filagora profile package.
 
 ## What it provides
 
+### Overview
+
+Zen Cart profile for Filagora: the extra columns, bindings, key remaps and seeders zen-cart.com needs on top of the generic packages.
+
+### Tables
+
+This package adds no tables of its own.
+
+### Commands
+
+| Command | What it does |
+| --- | --- |
+| `docs:import` | Import content/user and content/dev pages from zencart-docs (local checkout or git clone) into doc_pages. |
+| `filagora:zencart:push-versioncheck-cache` | Send the plugin version-check answers to the version-check cache. |
+| `filagora:zencart:stamp-manifest-ids {--plugin=} {--dry-run}` | Write each live release's plugin id into the manifest of its stored archive. |
+| `zencart:ingest-code` | Load Zen Cart source code (by release tag) into the code_chunks table and its vector index. |
+
+### Events
+
+This package fires no events.
+
+### Access
+
+The site's operator entitlement behind each ability the other packages define.
+
+| Ability | Entitlement key |
+| --- | --- |
+| `filagora.moderate_frontend` | `operator.forum.moderate_frontend` |
+| `filagora.forums.moderate` | `operator.forum.moderate` |
+| `filagora.forums.view_unapproved` | `operator.forum.view_unapproved` |
+| `filagora.forums.bypass_approval` | `operator.forum.bypass_approval` |
+| `filagora.forums.announcements` | `operator.site_notifications.manage` |
+| `filagora.settings.manage` | `operator.system.settings.manage` |
+| `filagora.entitlements.manage` | `operator.entitlements.manage` |
+| `filagora.entitlements.view` | `operator.entitlements.view` |
+| `filagora.compliance.privacy_requests.view` | `operator.privacy.requests.view` |
+| `filagora.compliance.privacy_requests` | `operator.privacy.requests.update` |
+| `filagora.compliance.erase` | `operator.privacy.requests.delete` |
+| `filagora.compliance.cookie_policies` | `operator.cookie_policies.manage` |
+| `filagora.compliance.privacy_policies` | `operator.privacy_policies.manage` |
+| `filagora.compliance.audit` | `operator.audit.view` |
+| `filagora.logs.view` | `operator.audit.view` |
+| `filagora.cms.manage` | `operator.cms.manage` |
+| `filagora.cms.preview` | `operator.cms.preview` |
+| `filagora.memberships.manage` | `operator.users.update` |
+| `filagora.memberships.view_billing` | `operator.audit.view` |
+| `filagora.plugins.moderate` | `operator.plugin.moderate` |
+| `filagora.plugins.auto_publish` | `operator.plugin.auto_publish` |
+| `filagora.plugins.security` | `operator.plugin.moderate` |
+| `filagora.ai.chat` | `ai_chat.access` |
+| `filagora.ai.view-usage` | `operator.audit.view` |
+| `filagora.notifications.view` | `operator.users.update` |
+
+### Using it
+
 - **Declares the site's extra columns**, exactly, so `php artisan filagora:adopt` accepts the
   live tables and still reports anything undeclared: `forums.legacy_vbulletin_forum_id`
   (unique), `forums.is_plugin_support_forum`, `threads.legacy_vbulletin_thread_id` (unique) and

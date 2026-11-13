@@ -10,7 +10,7 @@ worked example of a Filagora profile package.
 
 > The package is at `0.1`: the API may change between `0.x` minor versions.
 
-## What it does
+## What it provides
 
 - **Declares the site's extra columns**, exactly, so `php artisan filagora:adopt` accepts the
   live tables and still reports anything undeclared: `forums.legacy_vbulletin_forum_id`
@@ -69,6 +69,10 @@ under `user_attributes`).
 
   Plugin releases, so the chat can find a plugin by what it does: a vector-only index `plugin_release_vectors` (the live releases of live plugins, kept apart from the keyword index; indexed as releases are saved while embeddings are on; fill it with `php artisan filagora:search:reindex --index=plugin_release_vectors --sync-settings`) and a retrieval source that offers the plugin's page with the changelog as the excerpt.
 
+## Requirements
+
+PHP 8.4. Tested against MariaDB 11.4. Requires [`filagora/filagora-cms`](https://github.com/filagora/filagora-cms), [`filagora/filagora-compliance`](https://github.com/filagora/filagora-compliance), [`filagora/filagora-core`](https://github.com/filagora/filagora-core), [`filagora/filagora-entitlements`](https://github.com/filagora/filagora-entitlements), [`filagora/filagora-forums`](https://github.com/filagora/filagora-forums), [`filagora/filagora-memberships`](https://github.com/filagora/filagora-memberships), [`filagora/filagora-messages`](https://github.com/filagora/filagora-messages), [`filagora/filagora-notifications`](https://github.com/filagora/filagora-notifications) and [`filagora/filagora-plugins`](https://github.com/filagora/filagora-plugins).
+
 ## Install
 
 ```bash
@@ -83,13 +87,30 @@ before you migrate or adopt. To start from a database that already holds the tab
 `php artisan filagora:adopt --dry-run` instead of `migrate`: core, entitlements and forums, with
 this package's extras, must each report adoptable with no differences.
 
+## Configuration
+
+`config/filagora-zencart.php` is merged with the host's copy, so list only what
+differs. Publish it with `php artisan vendor:publish --tag=filagora-zencart-config`.
+
+## Extending
+
+Extend through documented contracts, events and registries. Anything not documented
+is `@internal`.
+
 ## Testing
 
 ```bash
 composer test
 ```
 
-Tests run against a real MariaDB database named `testing`.
+Tests run against a real MariaDB, never SQLite, so engine behaviour (FULLTEXT,
+`ONLY_FULL_GROUP_BY`, collation) matches production. Host and credentials come from
+your environment; the database is always named `testing`, never your development one.
+
+## Local development (DDEV)
+
+`.ddev/` is included. `ddev start` creates both `db` and `testing` (run `ddev restart` once
+if `testing` is missing), then `ddev exec vendor/bin/pest`.
 
 ## Licence
 

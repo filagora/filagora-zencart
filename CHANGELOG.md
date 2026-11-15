@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-15
+
 ### Changed
 
 - **The newsletter tables moved to `filagora/filagora-newsletters`** (now required, `^0.1`). The site migration `create_newsletter_tables` is replaced by `create_webhook_events_table` (the replay guard stays here), and the `zencart-site` snapshot no longer lists the six newsletter tables; the package's snapshot is identical to the entries removed. A database that already ran the old migration records the package's with `php artisan filagora:adopt --package=newsletters`.

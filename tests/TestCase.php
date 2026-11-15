@@ -14,6 +14,7 @@ use Filagora\Entitlements\EntitlementsServiceProvider;
 use Filagora\Forums\ForumsServiceProvider;
 use Filagora\Memberships\MembershipsServiceProvider;
 use Filagora\Messages\MessagesServiceProvider;
+use Filagora\Newsletters\NewslettersServiceProvider;
 use Filagora\Notifications\NotificationsServiceProvider as FilagoraNotificationsServiceProvider;
 use Filagora\Plugins\PluginsServiceProvider;
 use Filagora\Search\SearchServiceProvider;
@@ -55,6 +56,7 @@ abstract class TestCase extends Orchestra
             CmsServiceProvider::class,
             ComplianceServiceProvider::class,
             MessagesServiceProvider::class,
+            NewslettersServiceProvider::class,
             MembershipsServiceProvider::class,
             FilagoraNotificationsServiceProvider::class,
             PluginsServiceProvider::class,

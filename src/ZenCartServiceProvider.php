@@ -20,6 +20,7 @@ use Filagora\Forums\Contracts\ContentModerationPolicy;
 use Filagora\Forums\Contracts\PaidAccessCheck;
 use Filagora\Forums\Contracts\PostSignatureResolver;
 use Filagora\Forums\Targeting\TargetingRules;
+use Filagora\Newsletters\Contracts\NewsletterMedia;
 use Filagora\Notifications\Category;
 use Filagora\Notifications\Contracts\EmailSuppression;
 use Filagora\Notifications\Enums\NotificationChannel;
@@ -63,6 +64,7 @@ use Filagora\ZenCart\Plugins\StampManifestPluginId;
 use Filagora\ZenCart\Plugins\ZcVersionCompatibility;
 use Filagora\ZenCart\Plugins\ZenCartApiFields;
 use Filagora\ZenCart\Plugins\ZenCartReleaseExtension;
+use Filagora\ZenCart\Support\CmsNewsletterMedia;
 use Filagora\ZenCart\Support\EntitlementEmailSuppression;
 use Filagora\ZenCart\Support\MembershipPaidAccess;
 use Filagora\ZenCart\Support\RoleSuperUserCheck;
@@ -91,6 +93,7 @@ class ZenCartServiceProvider extends ServiceProvider
         $this->app->bind(PostSignatureResolver::class, UserSignatureResolver::class);
         $this->app->bind(UserAnonymizer::class, ZenCartUserAnonymizer::class);
         $this->app->bind(EmailSuppression::class, EntitlementEmailSuppression::class);
+        $this->app->bind(NewsletterMedia::class, CmsNewsletterMedia::class);
         $this->app->bind(Compatibility::class, ZcVersionCompatibility::class);
         $this->app->bind(ApiFields::class, ZenCartApiFields::class);
         $this->app->bind(PluginIdentifiers::class, LegacyPluginIdentifiers::class);
@@ -103,7 +106,7 @@ class ZenCartServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->make(ModuleRegistry::class)->register(
-            new Module('zencart', 'Filagora Zen Cart profile', 'filagora/filagora-zencart', requires: ['core', 'entitlements', 'forums', 'cms', 'compliance', 'messages', 'notifications', 'plugins']),
+            new Module('zencart', 'Filagora Zen Cart profile', 'filagora/filagora-zencart', requires: ['core', 'entitlements', 'forums', 'cms', 'compliance', 'messages', 'newsletters', 'notifications', 'plugins']),
         );
 
         $this->app->make(SchemaRegistry::class)->extend(SchemaExtension::fromFile(

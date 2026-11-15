@@ -107,6 +107,9 @@ return [
             'filagora.ai.chat' => 'ai_chat.access',
             'filagora.ai.view-usage' => 'operator.audit.view',
         ],
+        'filagora-newsletters.gates' => [
+            'filagora.newsletters.manage' => 'operator.newsletter.manage',
+        ],
         'filagora-notifications.gates' => [
             'filagora.notifications.view' => 'operator.users.update',
         ],

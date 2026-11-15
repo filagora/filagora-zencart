@@ -107,6 +107,12 @@ The site's operator entitlement behind each ability the other packages define.
   What your application keeps in its own tables (subscriptions, messages, contacts,
   notifications, newsletter subscriber rows) is erased by a `PrivacyContributor` you register
   with core for each, not by this package.
+- **Extends the newsletters package** (`filagora/filagora-newsletters`): maps its one ability to
+  `operator.newsletter.manage`, and binds `CmsNewsletterMedia` so the newsletter logo, image blocks
+  and editors use the CMS media library. The six newsletter tables are the package's; this profile
+  keeps only `webhook_events`, the replay guard the host's mail webhooks use. A database that ran
+  this profile's old newsletter migration (`2026_10_27_110000_create_newsletter_tables`) runs
+  `php artisan filagora:adopt --package=newsletters` instead of migrating.
 - **Seeds entitlement definitions** (`OperatorEntitlementSeeder`): the `operator.*` keys with
   their labels, for staging and test setups. It never creates grants, users or content.
 

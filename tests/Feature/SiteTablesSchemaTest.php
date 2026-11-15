@@ -24,8 +24,7 @@ afterEach(function () {
 it('owns every table the site used to create', function () {
     expect(array_keys(app(SchemaRegistry::class)->get('zencart-site')->tables))->toEqualCanonicalizing([
         'users', 'sessions', 'password_reset_tokens', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs',
-        'notifications', 'personal_access_tokens', 'newsletter_subscribers', 'newsletters', 'newsletter_sends',
-        'newsletter_events', 'newsletter_blocks', 'newsletter_link_clicks', 'webhook_events', 'queue_monitors',
+        'notifications', 'personal_access_tokens', 'webhook_events', 'queue_monitors',
         'registration_email_send_counters', 'legacy_import_user_maps', 'contacts', 'roles', 'model_has_roles',
     ]);
 });
@@ -34,10 +33,6 @@ it('builds every site table exactly as the snapshot of the live tables has it', 
     foreach (app(SchemaRegistry::class)->get('zencart-site')->tables as $base => $expected) {
         expect(TableShape::inspect($base)->differencesFrom($expected))->toBe([], $base);
     }
-});
-
-it('seeds the shared newsletter blocks on a fresh database', function () {
-    expect(DB::table(Tables::name('newsletter_blocks'))->pluck('key')->all())->toEqualCanonicalizing(['shared_header', 'shared_footer']);
 });
 
 it('adopts the site tables by recording their migrations', function () {

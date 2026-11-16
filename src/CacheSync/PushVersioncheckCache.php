@@ -7,6 +7,7 @@ namespace Filagora\ZenCart\CacheSync;
 use Filagora\ZenCart\VersionCheck\PayloadBuilder;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 
@@ -26,6 +27,22 @@ final class PushVersioncheckCache implements ShouldBeUnique, ShouldQueue
     public int $uniqueFor = 180;
 
     public function __construct(public readonly int $legacyPluginId) {}
+
+    /**
+     * Queue a push for a plugin when sync is on and carts know it by an old library id.
+     */
+    public static function queueFor(?Model $plugin): void
+    {
+        if (! (bool) config('filagora-zencart.cache_sync.enabled', false)) {
+            return;
+        }
+
+        $legacyId = (int) ($plugin?->getAttribute('legacy_vbulletin_file_id') ?? 0);
+
+        if ($legacyId > 0) {
+            self::dispatch($legacyId);
+        }
+    }
 
     public function uniqueId(): string
     {

@@ -12,6 +12,7 @@ use Filagora\Plugins\Models\PluginRelease;
 use Filagora\Plugins\Release\ReleaseInput;
 use Filagora\Plugins\Support\Models;
 use Filagora\Plugins\Support\PluginVersion;
+use Filagora\ZenCart\CacheSync\PushVersioncheckCache;
 use Filagora\ZenCart\Enums\Encapsulated;
 use Filagora\ZenCart\Models\ZcVersion;
 use Illuminate\Support\Facades\Storage;
@@ -68,6 +69,10 @@ final class ZenCartReleaseExtension implements ReleaseExtension
 
         if ($ids !== [] && method_exists($release, 'zcVersions')) {
             $release->zcVersions()->sync($ids);
+
+            // The release was saved before its versions were stored, so the push that save queued
+            // may have read it without them.
+            PushVersioncheckCache::queueFor($plugin);
         }
 
         if ($this->encapsulated($input) === Encapsulated::YES && $this->zip->normalizeRoot($plugin->getAttribute('zip_root')) === null) {

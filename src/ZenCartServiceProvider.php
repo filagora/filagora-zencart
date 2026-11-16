@@ -351,5 +351,7 @@ class ZenCartServiceProvider extends ServiceProvider
         foreach (['plugin', 'release'] as $key) {
             $this->app->booted(fn () => Models::class($key)::observe(SyncObserver::class));
         }
+
+        $this->app->booted(fn () => ZcVersion::observe(SyncObserver::class));
     }
 }

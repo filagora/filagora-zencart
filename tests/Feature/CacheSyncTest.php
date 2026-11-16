@@ -3,12 +3,17 @@
 declare(strict_types=1);
 
 use Filagora\Plugins\Enums\PluginStatus;
+use Filagora\Plugins\Release\ReleaseInput;
 use Filagora\ZenCart\CacheSync\CacheSyncClient;
 use Filagora\ZenCart\CacheSync\PushVersioncheckCache;
 use Filagora\ZenCart\Models\Plugin;
 use Filagora\ZenCart\Models\PluginRelease;
+use Filagora\ZenCart\Models\ZcVersion;
+use Filagora\ZenCart\Plugins\ZenCartReleaseExtension;
 use Filagora\ZenCart\VersionCheck\PayloadBuilder;
 use Illuminate\Http\Client\Request;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -121,4 +126,48 @@ it('re-pushes every library plugin, or the ones named', function () {
 it('refuses to re-push while sync is off', function () {
 
     $this->artisan('filagora:zencart:push-versioncheck-cache')->assertExitCode(1);
+});
+
+it('pushes once the Zen Cart versions of a new release are stored, which happens after the release is saved', function () {
+    $plugin = checkedPlugin();
+    $release = PluginRelease::query()->where('plugin_id', $plugin->id)->first();
+    $version = ZcVersion::create(['version' => '2.3.0', 'is_active' => true, 'position' => 30]);
+    syncOn();
+    Queue::fake();
+
+    app(ZenCartReleaseExtension::class)->created(
+        $plugin,
+        $release,
+        new ReleaseInput('1.0.0', UploadedFile::fake()->create('plugin.zip', 1), 'Changes', false, ['zc_versions' => [$version->id]]),
+    );
+
+    Queue::assertPushed(fn (PushVersioncheckCache $job): bool => $job->legacyPluginId === 2431);
+});
+
+it('pushes every plugin that names a Zen Cart version when its label changes or it is deleted', function () {
+    checkedPlugin();
+    $version = ZcVersion::query()->where('version', '2.1.0')->first();
+    syncOn();
+    Queue::fake();
+
+    $version->update(['position' => 11]);
+    Queue::assertNotPushed(PushVersioncheckCache::class);
+
+    $version->update(['version' => '2.1.1']);
+    Queue::assertPushed(fn (PushVersioncheckCache $job): bool => $job->legacyPluginId === 2431);
+
+    Cache::flush();
+    Queue::fake();
+
+    $version->delete();
+    Queue::assertPushed(fn (PushVersioncheckCache $job): bool => $job->legacyPluginId === 2431);
+});
+
+it('lets a failed answer fail the job, so it is retried and then recorded as failed', function () {
+    checkedPlugin();
+    syncOn();
+    Http::fake(['*' => Http::response('down', 500)]);
+
+    expect(fn () => (new PushVersioncheckCache(2431))->handle(app(PayloadBuilder::class), app(CacheSyncClient::class)))
+        ->toThrow(RequestException::class);
 });

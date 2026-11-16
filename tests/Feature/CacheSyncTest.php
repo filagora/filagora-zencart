@@ -171,3 +171,7 @@ it('lets a failed answer fail the job, so it is retried and then recorded as fai
     expect(fn () => (new PushVersioncheckCache(2431))->handle(app(PayloadBuilder::class), app(CacheSyncClient::class)))
         ->toThrow(RequestException::class);
 });
+
+it('points at the production cache unless told otherwise', function () {
+    expect(config('filagora-zencart.cache_sync.base_url'))->toBe('https://plugins.zen-cart.com');
+});

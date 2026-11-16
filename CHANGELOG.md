@@ -7,6 +7,7 @@ All notable changes to this package are documented here. The format follows
 
 ### Fixed
 
+- **The cache sync's `base_url` defaults to `https://plugins.zen-cart.com`,** as the site this was extracted from did. With no default, an `.env` carried over without `PLUGIN_CACHE_SYNC_BASE_URL` made sync switch itself off with a log warning and push nothing.
 - **The version-check cache is now told when a release's Zen Cart versions change.** Storing the versions of a new release happens after the release is saved, so the push that save queued could read the release without them; a push is now queued once they are stored. Renaming or deleting a Zen Cart version also pushes every plugin whose releases name it, which nothing did before.
 
 ## [0.14.0] - 2026-11-15

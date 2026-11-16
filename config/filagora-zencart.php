@@ -231,12 +231,13 @@ return [
     |
     | Push each plugin's version-check answer to the cache in front of Zen Cart stores (the
     | separate cache application) whenever the plugin or a release changes. `auth_token` is shared with
-    | that app: set the same value on both sides.
+    | that app: set the same value on both sides. `base_url` defaults to the production cache, as the old
+    | site's did, so an `.env` carried over without it still reaches it.
     |
     */
     'cache_sync' => [
         'enabled' => env('PLUGIN_CACHE_SYNC_ENABLED', false),
-        'base_url' => env('PLUGIN_CACHE_SYNC_BASE_URL'),
+        'base_url' => env('PLUGIN_CACHE_SYNC_BASE_URL', 'https://plugins.zen-cart.com'),
         'auth_token' => env('PLUGIN_CACHE_SYNC_AUTH_TOKEN'),
     ],
 

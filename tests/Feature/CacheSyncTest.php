@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Sleep;
 
 beforeEach(function () {
     Route::get('/plugins/{plugin:slug}', fn () => 'plugin')->name('plugins.show');
@@ -170,4 +171,45 @@ it('lets a failed answer fail the job, so it is retried and then recorded as fai
 
     expect(fn () => (new PushVersioncheckCache(2431))->handle(app(PayloadBuilder::class), app(CacheSyncClient::class)))
         ->toThrow(RequestException::class);
+});
+
+it('spreads queued re-pushes out so the cache is not asked for more a minute than it allows', function () {
+    $type = checkedPlugin()->plugin_type_id;
+    Plugin::create(['name' => 'Second', 'slug' => 'second', 'legacy_vbulletin_file_id' => 17, 'plugin_type_id' => $type]);
+    Plugin::create(['name' => 'Third', 'slug' => 'third', 'legacy_vbulletin_file_id' => 18, 'plugin_type_id' => $type]);
+    syncOn();
+    Cache::flush();
+    Queue::fake();
+
+    $this->artisan('filagora:zencart:push-versioncheck-cache', ['--per-minute' => 30])->assertExitCode(0);
+
+    $delays = Queue::pushed(PushVersioncheckCache::class)
+        ->mapWithKeys(fn (PushVersioncheckCache $job): array => [$job->legacyPluginId => (int) now()->diffInSeconds($job->delay, false)])
+        ->sortKeys();
+
+    // 30 a minute is one every two seconds, in library id order (17, 18, 2431); the first goes at once.
+    expect($delays->values()->map(fn (int $seconds): int => (int) round($seconds / 2) * 2)->all())->toBe([0, 2, 4]);
+});
+
+it('waits between sends when it sends in this process, and not before the first or with no limit', function () {
+    $type = checkedPlugin()->plugin_type_id;
+    Plugin::create(['name' => 'Second', 'slug' => 'second', 'legacy_vbulletin_file_id' => 17, 'plugin_type_id' => $type]);
+    syncOn();
+    Http::fake();
+    Sleep::fake();
+
+    $this->artisan('filagora:zencart:push-versioncheck-cache', ['--now' => true, '--per-minute' => 30])->assertExitCode(0);
+    Sleep::assertSleptTimes(1);
+    Sleep::assertSequence([Sleep::for(2)->seconds()]);
+
+    Sleep::fake();
+    $this->artisan('filagora:zencart:push-versioncheck-cache', ['--now' => true, '--per-minute' => 0])->assertExitCode(0);
+    Sleep::assertNeverSlept();
+});
+
+it('refuses a negative rate', function () {
+    checkedPlugin();
+    syncOn();
+
+    $this->artisan('filagora:zencart:push-versioncheck-cache', ['--per-minute' => -1])->assertExitCode(2);
 });

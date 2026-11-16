@@ -25,7 +25,7 @@ This package adds no tables of its own.
 | Command | What it does |
 | --- | --- |
 | `docs:import` | Import content/user and content/dev pages from zencart-docs (local checkout or git clone) into doc_pages. |
-| `filagora:zencart:push-versioncheck-cache` | Send the plugin version-check answers to the version-check cache. |
+| `filagora:zencart:push-versioncheck-cache {--id=*} {--now} {--per-minute=240}` | Send the plugin version-check answers to the version-check cache, at most `--per-minute` a minute (0 for no limit). |
 | `filagora:zencart:stamp-manifest-ids {--plugin=} {--dry-run}` | Write each live release's plugin id into the manifest of its stored archive. |
 | `zencart:ingest-code` | Load Zen Cart source code (by release tag) into the code_chunks table and its vector index. |
 

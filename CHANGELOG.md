@@ -5,6 +5,10 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- **`filagora:zencart:push-versioncheck-cache` spreads its sends out** (`--per-minute`, default 240, 0 for no limit). The cache application refuses writes past a per-address rate, and a refused write fails the job into its backoff, so sending a whole library at once (over two thousand plugins) failed some of them. Queued jobs are delayed in steps and `--now` waits between sends.
+
 ### Fixed
 
 - **The version-check cache is now told when a release's Zen Cart versions change.** Storing the versions of a new release happens after the release is saved, so the push that save queued could read the release without them; a push is now queued once they are stored. Renaming or deleting a Zen Cart version also pushes every plugin whose releases name it, which nothing did before.

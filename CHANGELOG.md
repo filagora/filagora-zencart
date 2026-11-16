@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-11-16
+
 ### Changed
 
 - **`filagora:zencart:push-versioncheck-cache` spreads its sends out** (`--per-minute`, default 240, 0 for no limit). The cache application refuses writes past a per-address rate, and a refused write fails the job into its backoff, so sending a whole library at once (over two thousand plugins) failed some of them. Queued jobs are delayed in steps and `--now` waits between sends.

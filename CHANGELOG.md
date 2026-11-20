@@ -5,6 +5,16 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.14.5] - 2026-11-20
+
+### Added
+
+- A content migration gives the `footer_useful` and `footer_legal` menus the headings the live site shows ("Useful Links", "Legal"), now that a menu can carry its own heading (`filagora-cms` 0.3.7). It fills only an empty heading, so one staff have set stays, and does nothing without the `title` column.
+
+### Changed
+
+- Requires `filagora/filagora-cms` `^0.3.7`.
+
 ## [0.14.4] - 2026-11-18
 
 ### Changed

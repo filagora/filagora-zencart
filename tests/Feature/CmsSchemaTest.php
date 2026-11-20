@@ -12,13 +12,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 const ZC_CMS_MIGRATION = '2026_10_12_100000_create_filagora_cms_tables';
+const ZC_CMS_TITLE_MIGRATION = '2026_11_20_000000_add_title_to_cms_navigations_table';
 const ZC_CMS_PROFILE_MIGRATION = '2026_10_13_000000_add_zencart_columns_to_cms_tables';
 
-function cmsMigration(): object
+function cmsMigration(string $name = ZC_CMS_MIGRATION): object
 {
     $dir = dirname((new ReflectionClass(CmsServiceProvider::class))->getFileName(), 2);
 
-    return require $dir.'/database/migrations/'.ZC_CMS_MIGRATION.'.php';
+    return require $dir.'/database/migrations/'.$name.'.php';
 }
 
 function cmsProfileMigration(): object
@@ -35,8 +36,9 @@ function siteCmsTables(): void
 
     cmsMigration()->down();
     cmsMigration()->up();
+    cmsMigration(ZC_CMS_TITLE_MIGRATION)->up();
     cmsProfileMigration()->up();
-    DB::table('migrations')->whereIn('migration', [ZC_CMS_MIGRATION, ZC_CMS_PROFILE_MIGRATION])->delete();
+    DB::table('migrations')->whereIn('migration', [ZC_CMS_MIGRATION, ZC_CMS_TITLE_MIGRATION, ZC_CMS_PROFILE_MIGRATION])->delete();
 }
 
 afterEach(function () {
@@ -47,6 +49,7 @@ afterEach(function () {
     config(['filagora.table_prefix' => 'filagora_']);
     cmsMigration()->down();
     cmsMigration()->up();
+    cmsMigration(ZC_CMS_TITLE_MIGRATION)->up();
     cmsProfileMigration()->up();
 });
 
@@ -86,13 +89,14 @@ it('adopts the live site\'s cms tables with zero differences once the profile is
     $plan = app(Adopter::class)->planFor(app(SchemaRegistry::class)->get('cms'));
 
     expect($plan->status)->toBe(AdoptionStatus::Adoptable, implode('; ', $plan->differences))
-        ->and($plan->pendingMigrations)->toEqualCanonicalizing([ZC_CMS_MIGRATION, ZC_CMS_PROFILE_MIGRATION]);
+        ->and($plan->pendingMigrations)->toEqualCanonicalizing([ZC_CMS_MIGRATION, ZC_CMS_TITLE_MIGRATION, ZC_CMS_PROFILE_MIGRATION]);
 });
 
 it('refuses the generic cms tables when the profile\'s column is missing', function () {
     config(['filagora.table_prefix' => '']);
     cmsMigration()->down();
     cmsMigration()->up();
+    cmsMigration(ZC_CMS_TITLE_MIGRATION)->up();
 
     $plan = app(Adopter::class)->planFor(app(SchemaRegistry::class)->get('cms'));
 

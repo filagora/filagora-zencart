@@ -152,3 +152,30 @@ it('keeps the member menu in the entitlement format, with no old role lists', fu
     expect(collect(menu('user_menu'))->firstWhere('label', 'Admin')['entitlements'])->toBe(['operator.dashboard.access'])
         ->and(collect(menu('user_menu'))->firstWhere('label', 'AI Chat')['entitlements'])->toBe(['ai_chat.access']);
 });
+
+const HEADINGS_MIGRATION = __DIR__.'/../../database/migrations/content/2026_11_20_100000_set_footer_menu_headings.php';
+
+function menuTitle(string $name): ?string
+{
+    return DB::table(Tables::name('cms_navigations'))->where('name', $name)->value('title');
+}
+
+it('gives the two footer menus the headings the live site shows', function () {
+    runNavigationMigration();
+    (require HEADINGS_MIGRATION)->up();
+
+    expect(menuTitle('footer_useful'))->toBe('Useful Links')
+        ->and(menuTitle('footer_legal'))->toBe('Legal')
+        ->and(menuTitle('header'))->toBeNull();
+});
+
+it('leaves a heading staff have already set, and fills a blank one', function () {
+    runNavigationMigration();
+    DB::table(Tables::name('cms_navigations'))->where('name', 'footer_legal')->update(['title' => 'Policies']);
+    DB::table(Tables::name('cms_navigations'))->where('name', 'footer_useful')->update(['title' => '']);
+
+    (require HEADINGS_MIGRATION)->up();
+
+    expect(menuTitle('footer_legal'))->toBe('Policies')
+        ->and(menuTitle('footer_useful'))->toBe('Useful Links');
+});

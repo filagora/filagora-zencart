@@ -5,6 +5,10 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Accepts `filagora-cms` 0.4 as well as 0.3.7 and later 0.3 releases (`^0.3.7 || ^0.4.0`). This package does not use the preview classes 0.4.0 changed. No code changes.
+
 ## [0.14.6] - 2026-11-21
 
 ### Changed

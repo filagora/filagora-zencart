@@ -53,7 +53,8 @@ it('adds the two categories only this site has, after the packages\' own', funct
         ->and($categories['plugins.release_updates']->channels)->toBe([Channel::EMAIL, Channel::PUSH, Channel::IN_APP])
         ->and($categories['plugins.release_updates']->unsubscribable)->toBeTrue()
         ->and($categories['privacy.request_updates']->channels)->toBe([Channel::EMAIL])
-        ->and($categories['privacy.request_updates']->unsubscribable)->toBeFalse();
+        ->and($categories['privacy.request_updates']->unsubscribable)->toBeFalse()
+        ->and($categories['privacy.request_updates']->isRequired())->toBeTrue();
 });
 
 it('only lets a link switch off the three kinds of optional mail the site has always allowed', function () {

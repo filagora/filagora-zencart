@@ -23,6 +23,7 @@ use Filagora\Forums\Targeting\TargetingRules;
 use Filagora\Newsletters\Contracts\NewsletterMedia;
 use Filagora\Notifications\Category;
 use Filagora\Notifications\Contracts\EmailSuppression;
+use Filagora\Notifications\Enums\CategoryKind;
 use Filagora\Notifications\Enums\NotificationChannel;
 use Filagora\Notifications\Events\PreferenceChanged;
 use Filagora\Notifications\NotificationCategories;
@@ -251,7 +252,7 @@ class ZenCartServiceProvider extends ServiceProvider
             $everywhere = [NotificationChannel::EMAIL, NotificationChannel::PUSH, NotificationChannel::IN_APP];
 
             $categories->register(new Category('plugins.release_updates', 'Updates to plugins you follow', $everywhere, unsubscribable: true));
-            $categories->register(new Category('privacy.request_updates', 'Updates to your privacy requests'));
+            $categories->register(new Category('privacy.request_updates', 'Updates to your privacy requests', kind: CategoryKind::REQUIRED));
         });
 
         Event::listen(PreferenceChanged::class, [SyncsLegacyNotificationColumns::class, 'handle']);

@@ -5,6 +5,12 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.14.6] - 2026-11-21
+
+### Changed
+
+- `privacy.request_updates` is now a required notification category (`filagora-notifications` 0.2): a person is always told about their own privacy request, even with a suppressed address, and the settings page shows it as always on instead of a choice. Requires `filagora/filagora-notifications` `^0.2`.
+
 ## [0.14.5] - 2026-11-20
 
 ### Added

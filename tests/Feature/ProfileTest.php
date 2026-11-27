@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Filagora\Entitlements\Contracts\SuperUserCheck;
 use Filagora\Entitlements\Models\EntitlementDefinition;
 use Filagora\Entitlements\Models\UserEntitlementGrant;
+use Filagora\Entitlements\Services\EntitlementResolver;
 use Filagora\Forums\Contracts\ContentModerationPolicy;
 use Filagora\Forums\Contracts\PaidAccessCheck;
 use Filagora\Forums\Contracts\PostSignatureResolver;
@@ -384,14 +385,35 @@ it('leaves a definition that already exists as it is', function () {
 });
 
 it('maps the memberships abilities onto the site\'s operator entitlements', function () {
+    $manager = TestUser::make('Manager');
     $editor = TestUser::make('Editor');
     $auditor = TestUser::make('Auditor');
+    UserEntitlementGrant::create(['user_id' => $manager->id, 'entitlement_key' => 'operator.entitlements.manage', 'grant_type' => 'manual']);
     UserEntitlementGrant::create(['user_id' => $editor->id, 'entitlement_key' => 'operator.users.update', 'grant_type' => 'manual']);
     UserEntitlementGrant::create(['user_id' => $auditor->id, 'entitlement_key' => 'operator.audit.view', 'grant_type' => 'manual']);
 
-    expect(Gate::forUser($editor)->allows('filagora.memberships.manage'))->toBeTrue()
-        ->and(Gate::forUser($editor)->allows('filagora.memberships.view_billing'))->toBeFalse()
+    expect(Gate::forUser($manager)->allows('filagora.memberships.manage'))->toBeTrue()
+        ->and(Gate::forUser($manager)->allows('filagora.memberships.view_billing'))->toBeFalse()
+        ->and(Gate::forUser($editor)->allows('filagora.memberships.manage'))->toBeFalse()
         ->and(Gate::forUser($auditor)->allows('filagora.memberships.view_billing'))->toBeTrue()
         ->and(Gate::forUser($auditor)->allows('filagora.memberships.manage'))->toBeFalse()
         ->and(Gate::forUser(TestUser::make('Nobody'))->allows('filagora.memberships.manage'))->toBeFalse();
+});
+
+it('leaves reserved keys out of what a membership grants', function () {
+    $member = TestUser::make('Member');
+    $keys = ['operator.*', 'operator.users.update', 'filagora.memberships.manage', 'forums.a.view'];
+    $plan = MembershipPlan::create(['code' => 'plan', 'name' => 'Plan', 'is_free' => true, 'entitlements' => $keys]);
+    UserMembership::create(['user_id' => $member->id, 'membership_plan_id' => $plan->id, 'status' => 'active', 'provider' => 'local', 'granted_entitlements_snapshot' => $keys]);
+
+    expect(app(EntitlementResolver::class)->entitlementsFor($member))->toContain('forums.a.view')
+        ->not->toContain('operator.*', 'operator.users.update', 'filagora.memberships.manage');
+});
+
+it('adds its reserved keys to those already there', function () {
+    config(['filagora-memberships.reserved_entitlements' => ['host.*']]);
+
+    (new ZenCartServiceProvider(app()))->register();
+
+    expect(config('filagora-memberships.reserved_entitlements'))->toBe(['host.*', 'operator.*', 'filagora.*']);
 });

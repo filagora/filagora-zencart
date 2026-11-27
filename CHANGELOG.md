@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.14.8] - 2026-11-27
+
 ### Changed
 
 - Managing membership plans and memberships (`filagora.memberships.manage`) now needs `operator.entitlements.manage` instead of `operator.users.update`.

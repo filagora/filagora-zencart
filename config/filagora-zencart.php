@@ -93,7 +93,7 @@ return [
             'filagora.cms.preview' => 'operator.cms.preview',
         ],
         'filagora-memberships.gates' => [
-            'filagora.memberships.manage' => 'operator.users.update',
+            'filagora.memberships.manage' => 'operator.entitlements.manage',
             'filagora.memberships.view_billing' => 'operator.audit.view',
         ],
         'filagora-plugins.gates' => [
@@ -114,6 +114,17 @@ return [
             'filagora.notifications.view' => 'operator.users.update',
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reserved plan entitlements
+    |--------------------------------------------------------------------------
+    |
+    | Keys no membership plan may grant: the staff entitlements, and the packages' own ability
+    | keys. They are added to `filagora-memberships.reserved_entitlements`.
+    |
+    */
+    'reserved_plan_entitlements' => ['operator.*', 'filagora.*'],
 
     /*
     |--------------------------------------------------------------------------

@@ -56,7 +56,7 @@ The site's operator entitlement behind each ability the other packages define.
 | `filagora.logs.view` | `operator.audit.view` |
 | `filagora.cms.manage` | `operator.cms.manage` |
 | `filagora.cms.preview` | `operator.cms.preview` |
-| `filagora.memberships.manage` | `operator.users.update` |
+| `filagora.memberships.manage` | `operator.entitlements.manage` |
 | `filagora.memberships.view_billing` | `operator.audit.view` |
 | `filagora.plugins.moderate` | `operator.plugin.moderate` |
 | `filagora.plugins.auto_publish` | `operator.plugin.auto_publish` |
@@ -88,6 +88,8 @@ The site's operator entitlement behind each ability the other packages define.
   `filagora.logs.view` to `operator.audit.view`, and so on), replacing the packages' `gates` config. Core's
   shared `filagora.moderate_frontend` maps to `operator.forum.moderate_frontend`: moderation on the
   site's pages without the dashboard forum screens. The map lives in `config/filagora-zencart.php`.
+- **Keeps staff keys out of membership plans**: `operator.*` and `filagora.*` are added to
+  `filagora-memberships.reserved_entitlements`, so no plan may grant them.
 - **Extends the cms package**: declares `cms_pages.legacy_vbulletin_content_id` (unique) the same
   way; registers the site's twelve block types (`promo_hero`, `donation_hero`, `donation_method`,
   `services_hero`, `provider_grid`, `about_hero` and the `home_*` blocks) with their forms, and

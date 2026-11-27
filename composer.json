@@ -17,7 +17,7 @@
         "filagora/filagora-core": "^0.2.3",
         "filagora/filagora-entitlements": "^0.2.3",
         "filagora/filagora-forums": "^0.6.5",
-        "filagora/filagora-memberships": "^0.1.1",
+        "filagora/filagora-memberships": "^0.1.5",
         "filagora/filagora-messages": "^0.3",
         "filagora/filagora-newsletters": "^0.1",
         "filagora/filagora-notifications": "^0.2",

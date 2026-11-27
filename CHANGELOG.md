@@ -5,6 +5,11 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Managing membership plans and memberships (`filagora.memberships.manage`) now needs `operator.entitlements.manage` instead of `operator.users.update`.
+- No membership plan may grant an `operator.*` or `filagora.*` key (`reserved_plan_entitlements`). Requires `filagora/filagora-memberships` `^0.1.5`.
+
 ## [0.14.7] - 2026-11-21
 
 ### Changed

@@ -101,6 +101,7 @@ class ZenCartServiceProvider extends ServiceProvider
 
         $this->useZenCartModels();
         $this->remapGates();
+        $this->reservePlanEntitlements();
         $this->extendCms();
     }
 
@@ -307,6 +308,18 @@ class ZenCartServiceProvider extends ServiceProvider
         foreach ((array) config('filagora-zencart.gates') as $key => $map) {
             config([$key => $map]);
         }
+    }
+
+    /**
+     * Keep the staff keys out of membership plans. Added to what is already there, whichever
+     * provider registered first.
+     */
+    private function reservePlanEntitlements(): void
+    {
+        config(['filagora-memberships.reserved_entitlements' => array_values(array_unique(array_merge(
+            (array) config('filagora-memberships.reserved_entitlements', []),
+            (array) config('filagora-zencart.reserved_plan_entitlements', []),
+        )))]);
     }
 
     /**

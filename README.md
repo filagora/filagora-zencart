@@ -104,11 +104,13 @@ The site's operator entitlement behind each ability the other packages define.
 - **Extends the compliance package**: maps its six abilities to `operator.privacy.requests.view`,
   `.update` and `.delete`, `operator.cookie_policies.manage`, `operator.privacy_policies.manage`
   and `operator.audit.view`; and binds `ZenCartUserAnonymizer`, which replaces the site's identity
-  columns on erasure (list in `anonymize.attributes`), makes the password unusable, clears roles,
-  permissions and two-factor, and removes the avatar file, sessions and password reset tokens.
-  What your application keeps in its own tables (subscriptions, messages, contacts,
-  notifications, newsletter subscriber rows) is erased by a `PrivacyContributor` you register
-  with core for each, not by this package.
+  columns on erasure, profile text included (list in `anonymize.attributes`), makes the password
+  unusable, clears roles, permissions and two-factor, and removes the avatar file, sessions and
+  password reset tokens. It also registers a `PrivacyContributor` (`old_forum`) that puts an
+  imported member's link to their old forum account, and that account's `vb_user` and
+  `vb_userfield` rows, into their export, and deletes them on erasure. The packages cover their
+  own tables; what only your application keeps (contacts, say) needs a contributor you register
+  with core.
 - **Extends the newsletters package** (`filagora/filagora-newsletters`): maps its one ability to
   `operator.newsletter.manage`, and binds `CmsNewsletterMedia` so the newsletter logo, image blocks
   and editors use the CMS media library. The six newsletter tables are the package's; this profile

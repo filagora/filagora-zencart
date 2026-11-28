@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.14.9] - 2026-11-28
+
 ### Changed
 
 - Erasure empties `biography`, `location`, `interests`, `occupation`, `user_title`, `timezone`, `stripe_id`, `pm_type` and `pm_last_four` too (`anonymize.attributes`).

@@ -5,6 +5,11 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Erasure empties `biography`, `location`, `interests`, `occupation`, `user_title`, `timezone`, `stripe_id`, `pm_type` and `pm_last_four` too (`anonymize.attributes`).
+- A new privacy contributor (`old_forum`) covers an imported member's old forum account: the link in `legacy_import_user_maps` and the `vb_user` and `vb_userfield` rows are in their export, and erasure deletes them.
+
 ## [0.14.8] - 2026-11-27
 
 ### Changed

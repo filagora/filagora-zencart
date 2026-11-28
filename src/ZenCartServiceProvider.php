@@ -12,6 +12,7 @@ use Filagora\Cms\Navigation\NavigationLinkTypes;
 use Filagora\Compliance\Contracts\UserAnonymizer;
 use Filagora\Core\Modules\Module;
 use Filagora\Core\Modules\ModuleRegistry;
+use Filagora\Core\Privacy\PrivacyContributorRegistry;
 use Filagora\Core\Schema\PackageSchema;
 use Filagora\Core\Schema\SchemaExtension;
 use Filagora\Core\Schema\SchemaRegistry;
@@ -65,6 +66,7 @@ use Filagora\ZenCart\Plugins\StampManifestPluginId;
 use Filagora\ZenCart\Plugins\ZcVersionCompatibility;
 use Filagora\ZenCart\Plugins\ZenCartApiFields;
 use Filagora\ZenCart\Plugins\ZenCartReleaseExtension;
+use Filagora\ZenCart\Privacy\OldForumDataContributor;
 use Filagora\ZenCart\Support\CmsNewsletterMedia;
 use Filagora\ZenCart\Support\EntitlementEmailSuppression;
 use Filagora\ZenCart\Support\MembershipPaidAccess;
@@ -146,6 +148,8 @@ class ZenCartServiceProvider extends ServiceProvider
         $this->app->make(SchemaRegistry::class)->register(
             PackageSchema::fromFile('zencart-site', __DIR__.'/../database/schema-site.php', __DIR__.'/../database/migrations/site'),
         );
+
+        $this->app->make(PrivacyContributorRegistry::class)->register(new OldForumDataContributor);
 
         $this->joinNotifications();
         $this->joinPlugins();
